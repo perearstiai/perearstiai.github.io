@@ -11,7 +11,6 @@ class Application(QMainWindow):
     audio_file: str = None
     transcript_file: str = None
 
-
     def __init__(self) -> None:
         super().__init__()
         uic.loadUi("app.ui", self)
@@ -32,7 +31,6 @@ class Application(QMainWindow):
         self.select_transcript.clicked.connect(
             lambda: self.browse_file(self.select_transcript))
 
-
     def record_clicked(self) -> None:
         if self.recorder.recording:
             self.record_btn.setText("Record")
@@ -43,28 +41,25 @@ class Application(QMainWindow):
             self.record_btn.setStyleSheet("background-color: red")
             self.recorder.start()
 
-
     def transcribe(self) -> None:
         if self.audio_file is None:
             print("No audio file selected")
             return
-        
+
         print("Transcribing...")
         transcription = self.transcriber.transcribe(self.audio_file)
         self.transcribe_textbox.setText(transcription)
 
-
     def summarize(self) -> None:
-        #if self.transcript_file is None:
+        # if self.transcript_file is None:
         #    print("No transcript file selected")
         #    return
-        
+
         print("Summarizing...")
         transcription = self.transcribe_textbox.toPlainText()
         keywords = self.keywords_textbox.toPlainText()
         summary = self.summarizer.summarize(transcription, keywords)
         self.summarize_textbox.setText(summary)
-
 
     def browse_file(self, btn) -> None:
         if btn == self.select_audio:
