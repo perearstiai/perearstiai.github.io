@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import *
 from PyQt6 import uic
+from dotenv import load_dotenv
 from Recorder import Recorder
 from Transcriber import Transcriber
 from Summarizer import Summarizer
@@ -15,6 +16,7 @@ class Application(QMainWindow):
         super().__init__()
         uic.loadUi("app.ui", self)
         self.show()
+        load_dotenv()
 
         # Create the instances of Recorder, Transcriber and Summarizer
         self.recorder = Recorder(self.rec_time)

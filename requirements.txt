@@ -1,2 +1,4 @@
 pyaudio
 PyQt6
+openai
+python-dotenv
