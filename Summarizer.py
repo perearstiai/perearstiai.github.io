@@ -21,11 +21,12 @@ class Summarizer:
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are a highly skilled AI trained in language comprehension and summarization. \
+                    "content": f"You are a highly skilled AI trained in language comprehension and summarization of medical transcripts. \
                             I would like you to read the following text and summarize it into a concise abstract paragraph. \
                             {keyword_sentence}\
                             Aim to retain the most important points, providing a coherent and readable summary that could help a \
                             person understand the main points of the discussion without needing to read the entire text. \
+                            You should focus only on the medical aspects of the discussion and ignore the rest. \
                             Please write the summary in Estonian and avoid unnecessary details or tangential points.",
                 },
                 {"role": "user", "content": content},
