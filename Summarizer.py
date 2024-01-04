@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-class Summarizer():
+class Summarizer:
     def __init__(self, model, temperature) -> None:
         self.client = OpenAI()
         self.model = model
@@ -9,7 +9,9 @@ class Summarizer():
 
     def summarize(self, content, keywords) -> str:
         if keywords != "":
-            keyword_sentence = f"The summarization must contain the following keywords: {keywords}."
+            keyword_sentence = (
+                f"The summarization must contain the following keywords: {keywords}."
+            )
         else:
             keyword_sentence = ""
 
@@ -24,12 +26,9 @@ class Summarizer():
                             {keyword_sentence}\
                             Aim to retain the most important points, providing a coherent and readable summary that could help a \
                             person understand the main points of the discussion without needing to read the entire text. \
-                            Please write the summary in Estonian and avoid unnecessary details or tangential points."
+                            Please write the summary in Estonian and avoid unnecessary details or tangential points.",
                 },
-                {
-                    "role": "user",
-                    "content": content
-                }
-            ]
+                {"role": "user", "content": content},
+            ],
         )
         return response.choices[0].message.content

@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import *
 from PyQt6 import uic
 from dotenv import load_dotenv
 from Recorder import Recorder
-from Transcriber import Transcriber
+from Transcriber import WhisperAPI
 from Summarizer import Summarizer
 
 
@@ -19,17 +19,17 @@ class Application(QMainWindow):
 
         # Create the instances of Recorder, Transcriber and Summarizer
         self.recorder = Recorder(self.rec_time)
-        self.transcriber = Transcriber("whisper-1")
+        self.transcriber = WhisperAPI("whisper-1")
         self.summarizer = Summarizer("gpt-4-1106-preview", 0)
 
         self.record_btn.clicked.connect(self.record_clicked)
         self.transcribe_btn.clicked.connect(self.transcribe)
         self.summarize_btn.clicked.connect(self.summarize)
 
-        self.select_audio.clicked.connect(
-            lambda: self.browse_file(self.select_audio))
+        self.select_audio.clicked.connect(lambda: self.browse_file(self.select_audio))
         self.select_transcript.clicked.connect(
-            lambda: self.browse_file(self.select_transcript))
+            lambda: self.browse_file(self.select_transcript)
+        )
 
     def record_clicked(self) -> None:
         if self.recorder.recording:
@@ -64,12 +64,14 @@ class Application(QMainWindow):
     def browse_file(self, btn) -> None:
         if btn == self.select_audio:
             file = QFileDialog.getOpenFileName(
-                self, "Open File", "", "Audio Files (*.wav)")
+                self, "Open File", "", "Audio Files (*.wav, *.mp3)"
+            )
             self.audio_path.setText(file[0])
             self.audio_file = file[0]
         elif btn == self.select_transcript:
             file = QFileDialog.getOpenFileName(
-                self, "Open File", "", "Text Files (*.txt)")
+                self, "Open File", "", "Text Files (*.txt)"
+            )
             self.transcript_path.setText(file[0])
             self.transcript_file = file[0]
 
