@@ -26,7 +26,8 @@ class Application(QMainWindow):
         self.transcribe_btn.clicked.connect(self.transcribe)
         self.summarize_btn.clicked.connect(self.summarize)
 
-        self.select_audio.clicked.connect(lambda: self.browse_file(self.select_audio))
+        self.select_audio.clicked.connect(
+            lambda: self.browse_file(self.select_audio))
         self.select_transcript.clicked.connect(
             lambda: self.browse_file(self.select_transcript)
         )
@@ -64,8 +65,7 @@ class Application(QMainWindow):
     def browse_file(self, btn) -> None:
         if btn == self.select_audio:
             file = QFileDialog.getOpenFileName(
-                self, "Open File", "", "Audio Files (*.wav, *.mp3)"
-            )
+                self, "Open File", "", "Audio Files (*.wav *.mp3)")
             self.audio_path.setText(file[0])
             self.audio_file = file[0]
         elif btn == self.select_transcript:

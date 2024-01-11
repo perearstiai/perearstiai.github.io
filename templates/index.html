@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Family doctor assistant</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="static/css/index.css" />
+    <link rel="shortcut icon" href="#" />
+  </head>
+  <body>
+    <div class="flex">
+      <a>OpenAI key: </a>
+      <input id="keyInput" type="password" />
+      <button id="setKeyButton">Set</button>
+    </div>
+    <hr />
+    <div class="flex">
+      <!-- Voice Recording -->
+      <button id="recordButton">Start Recording</button>
+      <div id="timer">00:00</div>
+    </div>
+    <hr />
+    <!-- File Selection for Recorded File -->
+    <div class="flex">
+      <a>Recorded File: </a>
+      <input type="file" id="recordedFile" name="recordedFile" />
+    </div>
+    <audio id="recordedAudio" controls></audio>
+    <!-- Transcribe Button and Textbox -->
+    <button id="transcribeButton">Transcribe</button>
+    <textarea id="transcriptionBox"></textarea>
+    <hr />
+    <!-- File Selection for Transcribed File -->
+    <div class="flex">
+      <a>Transcribed File: </a>
+      <input type="file" id="transcribedFile" name="transcribedFile" />
+    </div>
+
+    <!-- Summarize Button and Textbox -->
+    <div class="flex">
+      <a>Keywords</a>
+      <textarea id="keywordsBox"></textarea>
+    </div>
+    <button id="summarizeButton">Summarize</button>
+    <textarea id="summaryBox"></textarea>
+    <script src="static/js/index.js"></script>
+  </body>
+</html>
