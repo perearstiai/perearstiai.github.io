@@ -10,7 +10,7 @@ class Summarizer:
     def summarize(self, content, keywords) -> str:
         if keywords.strip() != "":
             keyword_sentence = (
-                f"The summarization must contain the following keywords: {keywords}."
+                f"The summarization must contain the following keywords: {keywords}. If the there is no context about the word, say \"Tekstis ei leidunud viiteid antud märksõnadele: [keywords list]\"."
             )
         else:
             keyword_sentence = ""
@@ -22,7 +22,10 @@ class Summarizer:
                     {
                         "role": "system",
                         "content": f"You are a highly skilled AI trained in language comprehension and summarization of medical transcripts. \
-                                I would like you to read the following text and summarize it into a concise abstract paragraph. \
+                                I would like you to read the following text and summarize it into three concise abstract paragraphs. \
+                                The first paragraph should contain information about patients' health condition, symptoms and what remedies has the patient already used. \
+                                The second paragraph should contain information about the physicians' observations and findings about the patients' condition. \
+                                The third paragraph should contain information about physicians' agreement with the patient and further instructions and referrals. \
                                 {keyword_sentence}\
                                 Aim to retain the most important points, providing a coherent and readable summary that could help a \
                                 person understand the main points of the discussion without needing to read the entire text. \
