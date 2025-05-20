@@ -1,0 +1,142 @@
+:root {
+  --main-width: 98vw;
+  --max-width: 900px;
+  --primary-bg: #f0f0f0;
+  --primary-color: #222;
+  --accent: #1976d2;
+  --border-radius: 8px;
+  --input-padding: 0.5em 1em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--primary-bg);
+  font-family: Arial, sans-serif;
+  color: var(--primary-color);
+}
+
+header {
+  width: 100%;
+  max-width: var(--max-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 0.5rem;
+}
+
+main {
+  width: 100%;
+  max-width: var(--max-width);
+  background: #fff;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.row-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.disabled-audio {
+  pointer-events: none;
+  filter: grayscale(1) brightness(1.5);
+  opacity: 0.5;
+}
+
+label {
+  font-weight: 500;
+  min-width: 120px;
+}
+
+input[type="password"],
+input[type="text"],
+input[type="file"],
+textarea {
+  padding: var(--input-padding);
+  border-radius: var(--border-radius);
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  flex: 1 1 200px;
+  max-width: 100%;
+}
+
+textarea {
+  min-width: 220px;
+  width: 100%;
+  max-width: 100%;
+  min-height: 60px;
+  resize: vertical;
+}
+
+button {
+  padding: 0.5em 1.5em;
+  border-radius: var(--border-radius);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover,
+button:focus {
+  background: #125ea2;
+}
+
+audio {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 0.5rem;
+}
+
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1.5rem 0;
+}
+
+footer {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #888;
+  font-size: 0.95em;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 1rem 0.5rem;
+  }
+  .row-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .logo {
+    width: 48px;
+    height: 48px;
+  }
+}

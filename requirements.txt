@@ -1,6 +1,0 @@
-pyaudio
-PyQt6
-openai
-python-dotenv
-flask
-pydub

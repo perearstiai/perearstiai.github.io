@@ -1,4 +1,4 @@
-# Assistant-family-doctors
-An assistant for family doctors that summarizes the conversation between the doctor and the patient
+# Assistant for Family Doctors
 
-Website of the application: https://pilve.pythonanywhere.com/
+This app is an assistant for family doctors that summarizes the conversation between the doctor and the patient.
+It is based on [this](https://github.com/Karljohan99/Assistant-family-doctors/) repo.

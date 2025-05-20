@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Family Doctor Assistant</title>
+    <meta name="description" content="An assistant for family doctors that summarizes the conversation between the doctor and the patient." />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="icon" type="image/svg+xml" href="assets/img/app-icon.svg">
+    <script type="module" src="js/main.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <!--<img src="assets/img/logo.png" alt="Family Doctor Assistant Logo" class="logo" />-->
+      <h1>Family Doctor Assistant</h1>
+    </header>
+
+    <main>
+      <form id="apiKeyForm" class="row-group" autocomplete="off">
+        <label for="keyInput">OpenAI key:</label>
+        <input id="keyInput" type="password" autocomplete="off" />
+        <button id="setKeyButton" type="button">Set</button>
+      </form>
+      <hr />
+
+      <section class="row-group">
+        <button id="recordButton" type="button">Start Recording</button>
+        <span id="timer" aria-live="polite">00:00</span>
+      </section>
+      <hr />
+
+      <section class="row-group">
+        <label for="recordedFile">Recorded File:</label>
+        <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
+      </section>
+      <section class="row-group">
+        <audio id="recordedAudio" controls></audio>
+      </section>
+
+      <section class="row-group">
+        <button id="transcribeButton" type="button">Transcribe</button>
+        <label for="transcriptionBox">Transcription:</label>
+        <textarea id="transcriptionBox" rows="4" placeholder="Transcribed text will appear here"></textarea>
+      </section>
+      <hr />
+
+      <section class="row-group">
+        <label for="transcribedFile">Transcribed File:</label>
+        <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
+      </section>
+
+      <section class="row-group">
+        <label for="keywordsBox">Keywords:</label>
+        <input id="keywordsBox" type="text" placeholder="Enter keywords (optional)" />
+      </section>
+
+      <section class="row-group">
+        <button id="summarizeButton" type="button">Summarize</button>
+        <label for="summaryBox">Summary:</label>
+        <textarea id="summaryBox" rows="4" placeholder="Summary will appear here"></textarea>
+      </section>
+    </main>
+
+    <footer>
+      <small>&copy; 2025 Family Doctor Assistant. Powered by OpenAI.</small>
+    </footer>
+  </body>
+</html>
