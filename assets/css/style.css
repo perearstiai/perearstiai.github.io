@@ -1,6 +1,6 @@
 :root {
   --main-width: 98vw;
-  --max-width: 900px;
+  --max-width: 1000px;
   --primary-bg: #f0f0f0;
   --primary-color: #222;
   --accent: #1976d2;
@@ -12,11 +12,15 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
+  height: 100%;
   margin: 0;
   background-color: var(--primary-bg);
   font-family: Arial, sans-serif;
@@ -24,29 +28,49 @@ body {
 }
 
 header {
-  width: 100%;
-  max-width: var(--max-width);
+  width: 100vw;
+  background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+header h1 {
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+.header-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+  justify-content: flex-start;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 1.5rem 2rem;
+  gap: 2.5rem;
 }
 
 .logo {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 0.5rem;
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
 }
 
 main {
+  flex: 1 0 auto;
   width: 100%;
   max-width: var(--max-width);
   background: #fff;
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   padding: 2rem 1rem;
-  margin-bottom: 2rem;
+  margin: 20px 0 20px 0;
 }
 
 .row-group {
@@ -118,12 +142,32 @@ hr {
   margin: 1.5rem 0;
 }
 
+/* Footer styling */
 footer {
-  width: 100%;
+  width: 100vw;
+  min-width: 100%;
+  background: #1976d2;
+  color: #fff;
   text-align: center;
-  margin-bottom: 1rem;
-  color: #888;
-  font-size: 0.95em;
+  padding: 1.2rem 0 1.2rem 0;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+  margin: 0;
+  box-shadow: 0 -2px 8px rgba(25, 118, 210, 0.08);
+}
+
+@media (max-width: 800px) {
+  .header-content {
+    gap: 1.2rem;
+    padding: 1rem 1rem 1rem 1rem;
+  }
+  .logo {
+    width: 70px;
+    height: 70px;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -138,5 +182,8 @@ footer {
   .logo {
     width: 48px;
     height: 48px;
+  }
+  h1 {
+    font-size: 1.1rem;
   }
 }

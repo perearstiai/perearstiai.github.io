@@ -1,7 +1,5 @@
 import { computeElapsedTime, getFormattedTime } from './utils.js';
 
-// TODO when page is refreshed, clear the prev file name as well
-
 export function setupRecorder() {
   const recordButton = document.getElementById('recordButton');
   const timer = document.getElementById('timer');
@@ -27,6 +25,9 @@ export function setupRecorder() {
       recordedAudio.tabIndex = -1;
     }
   }
+
+  // Clear the file text on setup
+  recordedFile.value = "";
 
   async function startRecording() {
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
@@ -62,6 +63,8 @@ export function setupRecorder() {
       if (!mediaRecorder) return resolve();
 
       mediaRecorder.addEventListener('stop', () => {
+        stopStream();
+
         const audioBlob = new Blob(audioBlobs, { type: mediaRecorder.mimeType });
         const audioFileName = "recording_" + getFormattedTime() + ".webm";
         const audioFile = new File([audioBlob], audioFileName);
@@ -77,13 +80,11 @@ export function setupRecorder() {
 
         // Remember as last valid file
         lastValidFile = audioFile;
-
+        
+        resetRecordingProperties();
         resolve();
-      });
-
+      }, { once: true });
       mediaRecorder.stop();
-      stopStream();
-      resetRecordingProperties();
     });
   }
 
@@ -129,7 +130,9 @@ export function setupRecorder() {
         setPlaybackEnabled(true);
       } else {
         recordedFile.value = "";
-        recordedAudio.src = "";
+        recordedAudio.pause();
+        recordedAudio.removeAttribute('src');
+        recordedAudio.load();
         setPlaybackEnabled(false);
       }
       return;
@@ -139,6 +142,6 @@ export function setupRecorder() {
     lastValidFile = file;
   });
 
-  // On load, always show controls but disable if no file
+  // Disable controls if no file
   setPlaybackEnabled(false);
 }
