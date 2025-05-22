@@ -1,14 +1,3 @@
-// Save API key to cookie (expires in 365 days)
-export function saveAPIKey(key) {
-  document.cookie = `APIkey=${encodeURIComponent(key)}; path=/; max-age=${60 * 60 * 24 * 365}`;
-}
-
-// Load API key from cookie
-export function loadAPIKey() {
-  const match = document.cookie.match('(^|;)\\s*APIkey\\s*=\\s*([^;]+)');
-  return match ? decodeURIComponent(match.pop()) : '';
-}
-
 // Compute elapsed time since startTime (Date object), returns "mm:ss" or "hh:mm:ss"
 export function computeElapsedTime(startTime) {
   const endTime = new Date();

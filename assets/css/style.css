@@ -1,6 +1,10 @@
+/* =========================
+   Root Variables & Global Styles
+   ========================= */
 :root {
   --main-width: 98vw;
-  --max-width: 1000px;
+  --max-width: 1200px;
+  --max-modal-width: 1100px;
   --primary-bg: #f0f0f0;
   --primary-color: #222;
   --accent: #1976d2;
@@ -16,17 +20,40 @@ html, body {
   height: 100%;
 }
 
+/* =========================
+   Base Layout & Typography
+   ========================= */
 body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
   margin: 0;
   background-color: var(--primary-bg);
   font-family: Arial, sans-serif;
   color: var(--primary-color);
 }
 
+h1 {
+  font-size: 2rem;
+  margin: auto;
+  font-weight: 600;
+}
+
+label {
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.required {
+  color: red;
+  font-weight: bold;
+}
+
+/* =========================
+   Header
+   ========================= */
 header {
   width: 100vw;
   background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
@@ -37,22 +64,12 @@ header {
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
 }
 
-h1 {
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-header h1 {
-  margin: 0;
-  padding: 1.5rem 0;
-}
-
 .header-content {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   margin: 0 auto;
-  padding: 1.5rem 2rem 1.5rem 2rem;
+  padding: 1.5rem 2rem;
   gap: 2.5rem;
 }
 
@@ -62,6 +79,14 @@ header h1 {
   flex-shrink: 0;
 }
 
+header h1 {
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+/* =========================
+   Main Content
+   ========================= */
 main {
   flex: 1 0 auto;
   width: 100%;
@@ -69,8 +94,8 @@ main {
   background: #fff;
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 2rem 1rem;
-  margin: 20px 0 20px 0;
+  padding: 1rem;
+  margin: 20px 0;
 }
 
 .row-group {
@@ -79,19 +104,87 @@ main {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
-.disabled-audio {
+.main-section {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+/* Section header with floating help icon */
+.section-header {
+  position: relative;
+  margin-bottom: 2em;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex: 1 1 auto;
+}
+
+
+.section-help {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+  cursor: pointer;
+  outline: none;
+  z-index: 2;
+}
+
+.help-icon {
+  display: inline-block;
+  width: 1.6em;
+  height: 1.6em;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 1.6em;
+  font-weight: bold;
+  font-size: 1.1em;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.section-help:focus .help-icon,
+.section-help:hover .help-icon {
+  background: #bbdefb;
+}
+
+.section-tooltip {
+  display: none;
+  position: absolute;
+  top: 2.2em;
+  right: 0;
+  z-index: 10;
+  background: #fff;
+  color: #222;
+  border: #222 1px solid;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.13);
+  padding: 0.9em 1.2em;
+  font-size: 0.98em;
+  min-width: 220px;
+  max-width: 320px;
+  text-align: left;
   pointer-events: none;
-  filter: grayscale(1) brightness(1.5);
-  opacity: 0.5;
 }
 
-label {
-  font-weight: 500;
-  min-width: 120px;
+.section-help:hover .section-tooltip,
+.section-help:focus .section-tooltip {
+  display: block;
+  pointer-events: auto;
 }
 
+/* =========================
+   Inputs & Buttons
+   ========================= */
 input[type="password"],
 input[type="text"],
 input[type="file"],
@@ -129,12 +222,225 @@ button:focus {
   background: #125ea2;
 }
 
+/* Icon buttons (clear, download, etc.) */
+.icon-btn {
+  background: none;
+  border: none;
+  color: #e53935;
+  font-size: 1.5em;
+  cursor: pointer;
+  margin-left: 0.5em;
+  display: flex;
+  align-items: center;
+  padding: 0 0.2em;
+  transition: color 0.2s;
+}
+
+.icon-btn:hover,
+.icon-btn:focus {
+  color: #b71c1c;
+  outline: none;
+}
+
+/* Hide clear buttons by default */
+/*
+#clearRecordedFile,
+#clearTranscribedFile {
+  display: none;
+}
+*/
+
+/* =========================
+   Audio Player
+   ========================= */
 audio {
   width: 100%;
   max-width: 400px;
   margin-top: 0.5rem;
 }
 
+.disabled-audio {
+  pointer-events: none;
+  filter: grayscale(1) brightness(1.5);
+  opacity: 0.5;
+}
+
+/* =========================
+   Modal Shared Styles
+   ========================= */
+dialog {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px rgba(25, 118, 210, 0.18);
+  background: #fff;
+  color: #222;
+  z-index: 1000;
+  animation: modalFadeIn 0.18s;
+  padding: 2em 2em 1.2em 2em;
+  width: 90vw;
+  max-width: 420px;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+
+dialog[open]::backdrop {
+  background: rgba(25, 118, 210, 0.13);
+  backdrop-filter: blur(2px);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+  margin-top: 1em;
+}
+
+dialog .modal-actions button {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.5em 1.5em;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+dialog .modal-actions button:hover,
+dialog .modal-actions button:focus {
+  background: #125ea2;
+}
+
+/* =========================
+   Settings Modal
+   ========================= */
+dialog#settingsModal {
+  max-width: var(--max-modal-width);
+  padding: 2em 2em 1em 2em;
+}
+
+#settingsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+#settingsForm label {
+  font-weight: 500;
+  margin-top: 0.5em;
+}
+
+#settingsForm textarea,
+#settingsForm input[type="password"],
+#settingsForm input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#settingsForm details summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 0;
+  padding: 5px;
+  width: 15%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+#settingsForm details summary:hover {
+  background: #eee;
+}
+
+#settingsModal h2 {
+  margin-top: 0;
+  color: #1976d2;
+  font-size: 1.3em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+#applySettingsBtn {
+  background: #1976d2;
+  color: #fff;
+}
+
+#closeSettingsBtn {
+  background: #eee;
+  color: #222;
+}
+
+#applySettingsBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Eye icon in input */
+.input-eye-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 60vw;
+  max-width: 80%;
+}
+.eye-btn {
+  position: absolute;
+  right: 0.5em;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  top: 0;
+}
+.eye-btn:hover,
+.eye-btn:focus {
+  background: rgb(223, 223, 223);
+}
+.form-icon {
+  width: 24px;
+  height: 24px;
+  right: 0.5em;
+}
+
+/* =========================
+   Settings Button
+   ========================= */
+.settings-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5em;
+}
+
+.settings-btn:focus {
+  outline: 2px solid #fff;
+}
+
+.settings-icon {
+  font-size: 2rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* =========================
+   Miscellaneous
+   ========================= */
 hr {
   width: 100%;
   border: none;
@@ -142,24 +448,96 @@ hr {
   margin: 1.5rem 0;
 }
 
-/* Footer styling */
+/* =========================
+   Footer
+   ========================= */
 footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100vw;
   min-width: 100%;
   background: #1976d2;
   color: #fff;
   text-align: center;
-  padding: 1.2rem 0 1.2rem 0;
+  padding: 1.2rem 0;
   font-size: 1.05em;
+  font-weight: bold;
   letter-spacing: 0.5px;
   margin: 0;
   box-shadow: 0 -2px 8px rgba(25, 118, 210, 0.08);
 }
+.footer-link-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1em;
+  padding: 0.5em;
+  margin: 0.5em;
+  margin-top: 0;
+}
+.footer-link-btn:hover {
+  color: #bbdefb;
+  outline: none;
+}
+.footer-text {
+  margin: 0.5em 0;
+}
 
+/* =========================
+   Footer Links (modals)
+   ========================= */
+dialog#aboutModal,
+dialog#privacyPolicyModal,
+dialog#attributionsModal {
+  /* Inherit shared dialog styles */
+  max-width: 420px;
+  padding: 2em 2em 1.2em 2em;
+}
+
+dialog#aboutModal h2,
+dialog#privacyPolicyModal h2,
+dialog#attributionsModal h2 {
+  margin-top: 0;
+  color: #1976d2;
+  font-size: 1.3em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+dialog#aboutModal p,
+dialog#privacyPolicyModal p,
+dialog#attributionsModal ul {
+  font-size: 1em;
+  color: #333;
+  margin: 1em 0;
+  margin-bottom: 25px;
+}
+dialog#attributionsModal li {
+  margin-bottom: 10px;
+}
+
+dialog#attributionsModal a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s, text-decoration 0.15s;
+  padding-bottom: 1px;
+}
+dialog#attributionsModal a:hover{
+  color: #125ea2;
+}
+
+
+/* =========================
+   Responsive Design
+   ========================= */
 @media (max-width: 800px) {
   .header-content {
     gap: 1.2rem;
-    padding: 1rem 1rem 1rem 1rem;
+    padding: 1rem 1rem;
   }
   .logo {
     width: 70px;
@@ -173,6 +551,15 @@ footer {
 @media (max-width: 600px) {
   main {
     padding: 1rem 0.5rem;
+  }
+  .footer-link-sep{
+    display: none;
+  }
+  .footer-links{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: underline;
   }
   .row-group {
     flex-direction: column;

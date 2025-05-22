@@ -1,16 +1,16 @@
-// Sets up transcription logic and UI event listeners
+import { getOpenAIKey } from './settings.js';
+
 export function setupTranscriber() {
   const transcribeButton = document.getElementById('transcribeButton');
   const recordedFile = document.getElementById('recordedFile');
   const transcriptionBox = document.getElementById('transcriptionBox');
-  const keyInput = document.getElementById('keyInput');
 
   transcribeButton.addEventListener('click', async () => {
-    const apiKey = keyInput.value.trim();
+    const apiKey = getOpenAIKey().trim();
     const file = recordedFile.files[0];
 
     if (!apiKey) {
-      alert('Please enter your OpenAI API key.');
+      alert('Please enter your OpenAI API key in settings.');
       return;
     }
     if (!file) {

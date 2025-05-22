@@ -15,57 +15,172 @@
       <nav class="header-content" aria-label="Main Header">
         <img src="assets/img/app-logo.svg" alt="Family Doctor Assistant Logo" class="logo" />
         <h1>Family Doctor Assistant</h1>
+        <button id="settingsBtn" class="settings-btn" aria-label="Settings">
+          <span class="settings-icon" aria-hidden="true">&#9881;</span>
+          <span class="visually-hidden">Settings</span>
+        </button>
       </nav>
     </header>
 
     <main>
-      <form id="apiKeyForm" class="row-group" autocomplete="off">
-        <label for="keyInput">OpenAI key:</label>
-        <input id="keyInput" type="password" autocomplete="off" />
-        <button id="setKeyButton" type="button">Set</button>
-      </form>
-      <hr />
-
-      <section class="row-group">
-        <button id="recordButton" type="button">Start Recording</button>
-        <span id="timer" aria-live="polite">00:00</span>
+      <!-- 1. Provide recording -->
+      <section class="main-section">
+        <div class="section-header">
+          <h2>1. Provide recording</h2>
+          <span class="section-help" tabindex="0" aria-label="Help: Provide recording">
+            <span class="help-icon">?</span>
+            <span class="section-tooltip">
+              You can record a new audio or upload an existing audio file. Start by clicking "Start Recording" or select a file below.
+            </span>
+          </span>
+        </div>
+        <div class="row-group">
+          <button type="button" id="recordButton">Start Recording</button>
+          <span id="timer">00:00</span>
+        </div>
+        <div class="row-group">
+          <label for="recordedFile">Recorded File:</label>
+          <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
+          <button type="button" id="clearRecordedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
+        </div>
+        <div class="row-group">
+          <audio id="recordedAudio" controls></audio>
+          <button type="button" id="downloadRecordedFile" class="icon-btn" aria-label="Download recording">&#128190;</button>
+        </div>
       </section>
       <hr />
 
-      <section class="row-group">
-        <label for="recordedFile">Recorded File:</label>
-        <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
-      </section>
-      <section class="row-group">
-        <audio id="recordedAudio" controls></audio>
-      </section>
-
-      <section class="row-group">
-        <button id="transcribeButton" type="button">Transcribe</button>
-        <label for="transcriptionBox">Transcription:</label>
-        <textarea id="transcriptionBox" rows="4" placeholder="Transcribed text will appear here"></textarea>
+      <!-- 2. Transcribe -->
+      <section class="main-section">
+        <div class="section-header">
+          <h2>2. Transcribe</h2>
+          <span class="section-help" tabindex="0" aria-label="Help: Transcribe">
+            <span class="help-icon">?</span>
+            <span class="section-tooltip">
+              Click "Transcribe" to convert your audio to text. The transcription will appear in the box below.
+            </span>
+          </span>
+        </div>
+        <div class="row-group">
+          <button id="transcribeButton" type="button">Transcribe</button>
+        </div>
+        <div class="row-group">
+          <textarea id="transcriptionBox" rows="4" placeholder="Transcribed text will appear here"></textarea>
+        </div>
       </section>
       <hr />
 
-      <section class="row-group">
-        <label for="transcribedFile">Transcribed File:</label>
-        <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
-      </section>
-
-      <section class="row-group">
-        <label for="keywordsBox">Keywords:</label>
-        <input id="keywordsBox" type="text" placeholder="Enter keywords (optional)" />
-      </section>
-
-      <section class="row-group">
-        <button id="summarizeButton" type="button">Summarize</button>
-        <label for="summaryBox">Summary:</label>
-        <textarea id="summaryBox" rows="4" placeholder="Summary will appear here"></textarea>
+      <!-- 3. Summarize -->
+      <section class="main-section">
+        <div class="section-header">
+          <h2>3. Summarize</h2>
+          <span class="section-help" tabindex="0" aria-label="Help: Summarize">
+            <span class="help-icon">?</span>
+            <span class="section-tooltip">
+              Upload a transcription file or use the text above, then click "Summarize" to get a summary of the conversation.
+            </span>
+          </span>
+        </div>
+        <div class="row-group">
+          <label for="transcribedFile">Transcribed File:</label>
+          <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
+          <button type="button" id="clearTranscribedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
+        </div>
+        <div class="row-group">
+          <button id="summarizeButton" type="button">Summarize</button>
+        </div>
+        <div class="row-group">
+          <textarea id="summaryBox" rows="4" placeholder="Summary will appear here"></textarea>
+        </div>
       </section>
     </main>
 
     <footer>
-      <small>&copy; 2025 Family Doctor Assistant. Powered by OpenAI.</small>
+      <div class="footer-links">
+        <button id="aboutBtn" class="footer-link-btn" type="button">About</button>
+        <span class="footer-link-sep" aria-hidden="true">|</span>
+        <button id="privacyPolicyBtn" class="footer-link-btn" type="button">Privacy Policy</button>
+        <span class="footer-link-sep" aria-hidden="true">|</span>
+        <button id="attributionsBtn" class="footer-link-btn" type="button">Attributions</button>
+      </div>
+      <small class="footer-text">
+        &copy; 2025 Family Doctor Assistant
+      </small>
     </footer>
+
+    <!-- Settings Modal -->
+    <dialog id="settingsModal">
+      <form method="dialog" id="settingsForm" autocomplete="off">
+        <h2>Settings</h2>
+        <label for="settingsApiKey">OpenAI Key <span class="required">*</span></label>
+        <span class="input-eye-wrapper">
+          <input id="settingsApiKey" type="password" required />
+          <button type="button" id="settings-apikey-show" class="eye-btn" aria-label="Show API key">
+            <img src="assets/img/eye-show.svg" alt="Show" class="form-icon" />
+          </button>
+          <button type="button" id="settings-apikey-hide" class="eye-btn" aria-label="Hide API key">
+            <img src="assets/img/eye-hide.svg" alt="Hide" class="form-icon" />
+          </button>
+        </span>
+        <label for="settingsExamples">Examples (optional)</label>
+        <textarea id="settingsExamples" rows="2" placeholder="Add example conversations or prompts (optional)"></textarea>
+        <details id="advancedSettings">
+          <summary>Advanced</summary>
+          <label for="settingsSystemPrompt">System Prompt <span class="required">*</span></label>
+          <textarea id="settingsSystemPrompt" rows="4" required></textarea>
+        </details>
+        <div class="modal-actions">
+          <button type="submit" id="applySettingsBtn">Apply</button>
+          <button type="button" id="closeSettingsBtn">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- About Modal -->
+    <dialog id="aboutModal">
+      <form method="dialog">
+        <h2>About</h2>
+        <p>Family Doctor Assistant helps to summarize doctor-patient conversations.</p>
+        <div class="modal-actions">
+          <button type="submit">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Privacy Policy Modal -->
+    <dialog id="privacyPolicyModal">
+      <form method="dialog">
+        <h2>Privacy Policy</h2>
+        <p>Privacy policy text here.</p>
+        <div class="modal-actions">
+          <button type="submit">Close</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Attributions Modal -->
+    <dialog id="attributionsModal">
+      <form method="dialog">
+        <h2>Icon Attributions</h2>
+        <ul>
+          <li>
+            <a href="https://www.svgrepo.com/svg/528683/stethoscope" target="_blank" rel="noopener">App Icon</a>
+          </li>
+          <li>
+            <a href="https://www.svgrepo.com/svg/415210/doctor-files-medical" target="_blank" rel="noopener">App Logo</a>
+          </li>
+          <li>
+            <a href="https://www.svgrepo.com/svg/532493/eye" target="_blank" rel="noopener">Eye Icon</a>
+          </li>
+          <li>
+            <a href="https://www.svgrepo.com/svg/532465/eye-slash" target="_blank" rel="noopener">Eye Slash Icon</a>
+          </li>
+        </ul>
+        <div class="modal-actions">
+          <button type="submit">Close</button>
+        </div>
+      </form>
+    </dialog>
+
   </body>
 </html>

@@ -1,0 +1,4 @@
+eye-hide.svg -> NAME: Eye Slash; COLLECTION: Dazzle Line Icons; LICENSE: CC Attribution License; AUTHOR: Dazzle UI; URL: https://www.svgrepo.com/svg/532465/eye-slash
+eye-show.svg -> NAME: Eye; COLLECTION: Dazzle Line Icons; LICENSE: CC Attribution License; AUTHOR: Dazzle UI; URL: https://www.svgrepo.com/svg/532493/eye
+app-logo.svg -> NAME: Doctor Files Medical; COLLECTION: File Types Outline Duotone Icons; LICENSE: CC Attribution License; AUTHOR: Lutfi Achmad; URL: https://www.svgrepo.com/svg/415210/doctor-files-medical
+app-icon.svg -> NAME: Stethoscope; COLLECTION: Solar Bold Duotone Icons; LICENSE: CC Attribution License; AUTHOR: Solar Icons; URL: https://www.svgrepo.com/svg/528683/stethoscope

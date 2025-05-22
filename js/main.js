@@ -1,31 +1,43 @@
 import { setupRecorder } from './recorder.js';
 import { setupTranscriber } from './transcriber.js';
 import { setupSummarizer } from './summarizer.js';
-import { loadAPIKey, saveAPIKey } from './utils.js';
+import { setupSettingsModal, requireSettings } from './settings.js';
+import { setupFooterLinks } from './footer-links.js';
 
-// DOM elements
-const keyInput = document.getElementById('keyInput');
-const setKeyButton = document.getElementById('setKeyButton');
 
-// TODO - Add a visibility toggle for the API key input
-// TODO - Add a possiblity to clear the selected file (for both file inputs)
-// TODO - Add a settings button to header to open a modal with settings
-// TODO - Make the UI cleaner (adjust margins, paddings, buttons etc.)
-
-// Load saved API key on startup
 window.addEventListener('DOMContentLoaded', () => {
-  const savedKey = loadAPIKey();
-  if (savedKey) keyInput.value = savedKey;
+  setupSettingsModal();
+  requireSettings().then(() => {
+    setupRecorder();
+    setupTranscriber();
+    setupSummarizer();
+    setupFooterLinks();
 
-  // Recorder should be restarted on each page load (including refresh)
-  setupRecorder();
+    // --- File clear button logic ---
+    // Recorded file
+    const recordedFile = document.getElementById('recordedFile');
+    const clearRecordedFile = document.getElementById('clearRecordedFile');
+    function updateClearRecordedFileBtn() {
+      clearRecordedFile.style.display = recordedFile.files.length > 0 ? '' : 'none';
+    }
+    recordedFile.addEventListener('change', updateClearRecordedFileBtn);
+    clearRecordedFile.addEventListener('click', () => {
+      recordedFile.value = '';
+      recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    updateClearRecordedFileBtn();
+
+    // Transcribed file
+    const transcribedFile = document.getElementById('transcribedFile');
+    const clearTranscribedFile = document.getElementById('clearTranscribedFile');
+    function updateClearTranscribedFileBtn() {
+      clearTranscribedFile.style.display = transcribedFile.files.length > 0 ? '' : 'none';
+    }
+    transcribedFile.addEventListener('change', updateClearTranscribedFileBtn);
+    clearTranscribedFile.addEventListener('click', () => {
+      transcribedFile.value = '';
+      transcribedFile.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    updateClearTranscribedFileBtn();
+  });
 });
-
-// Save API key when set
-setKeyButton.addEventListener('click', () => {
-  saveAPIKey(keyInput.value);
-});
-
-// Setup feature modules
-setupTranscriber();
-setupSummarizer();

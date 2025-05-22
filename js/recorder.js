@@ -5,6 +5,8 @@ export function setupRecorder() {
   const timer = document.getElementById('timer');
   const recordedFile = document.getElementById('recordedFile');
   const recordedAudio = document.getElementById('recordedAudio');
+  const clearBtn = document.getElementById('clearRecordedFile');
+  const downloadBtn = document.getElementById('downloadRecordedFile');
 
   let isRecording = false;
   let intervalId = null;
@@ -13,10 +15,10 @@ export function setupRecorder() {
   let audioBlobs = [];
   let streamBeingCaptured = null;
   let lastValidFile = null;
+  let lastRecordedBlob = null;
 
-  // Helper to visually and functionally disable playback
   function setPlaybackEnabled(enabled) {
-    recordedAudio.controls = true; // Always show controls
+    recordedAudio.controls = true;
     if (enabled) {
       recordedAudio.classList.remove('disabled-audio');
       recordedAudio.tabIndex = 0;
@@ -26,7 +28,6 @@ export function setupRecorder() {
     }
   }
 
-  // Clear the file text on setup
   recordedFile.value = "";
 
   async function startRecording() {
@@ -66,7 +67,7 @@ export function setupRecorder() {
         stopStream();
 
         const audioBlob = new Blob(audioBlobs, { type: mediaRecorder.mimeType });
-        const audioFileName = "recording_" + getFormattedTime() + ".webm";
+        const audioFileName = "recording_" + getFormattedTime() + ".wav";
         const audioFile = new File([audioBlob], audioFileName);
 
         // Set file input for downstream processing
@@ -80,7 +81,15 @@ export function setupRecorder() {
 
         // Remember as last valid file
         lastValidFile = audioFile;
-        
+        lastRecordedBlob = audioBlob;
+
+        // Show download button if recorded in browser
+        if (audioBlob.size > 0) {
+          downloadBtn.style.display = "";
+        } else {
+          downloadBtn.style.display = "none";
+        }
+
         resetRecordingProperties();
         resolve();
       }, { once: true });
@@ -118,6 +127,8 @@ export function setupRecorder() {
       recordedAudio.src = "";
       setPlaybackEnabled(false);
       lastValidFile = null;
+      lastRecordedBlob = null;
+      downloadBtn.style.display = "none";
       return;
     }
     if (!file.type.startsWith('audio')) {
@@ -128,18 +139,51 @@ export function setupRecorder() {
         recordedFile.files = dt.files;
         recordedAudio.src = URL.createObjectURL(lastValidFile);
         setPlaybackEnabled(true);
+        downloadBtn.style.display = lastRecordedBlob ? "" : "none";
       } else {
         recordedFile.value = "";
         recordedAudio.pause();
         recordedAudio.removeAttribute('src');
         recordedAudio.load();
         setPlaybackEnabled(false);
+        downloadBtn.style.display = "none";
       }
       return;
     }
     recordedAudio.src = URL.createObjectURL(file);
     setPlaybackEnabled(true);
     lastValidFile = file;
+    lastRecordedBlob = null;
+    downloadBtn.style.display = "none";
+  });
+
+  // Clear file logic
+  clearBtn.addEventListener('click', () => {
+    recordedFile.value = "";
+    recordedAudio.pause();
+    recordedAudio.removeAttribute('src');
+    recordedAudio.load();
+    setPlaybackEnabled(false);
+    lastValidFile = null;
+    lastRecordedBlob = null;
+    downloadBtn.style.display = "none";
+    recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  // Download logic
+  downloadBtn.addEventListener('click', () => {
+    if (lastRecordedBlob) {
+      const url = URL.createObjectURL(lastRecordedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'recording.wav';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
   });
 
   // Disable controls if no file
