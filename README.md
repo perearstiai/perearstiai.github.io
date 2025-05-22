@@ -5,4 +5,4 @@ It is based on [this](https://github.com/Karljohan99/Assistant-family-doctors/) 
 
 ## Attributions
 
-See [ATTRIBUTIONS.md](./ATTRIBUTIONS.md) for icon and third-party attributions.
+See [ATTRIBUTIONS.md](./ATTRIBUTIONS.md) for third-party attributions.
