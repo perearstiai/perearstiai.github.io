@@ -1,7 +1,8 @@
 const SETTINGS_KEYS = {
   apiKey: 'openai_api_key',
   examples: 'openai_examples',
-  systemPrompt: 'openai_system_prompt'
+  systemPrompt: 'openai_system_prompt',
+  lang: 'lang'
 };
 const DEFAULT_SYSTEM_PROMPT = `You are a highly skilled AI trained in language comprehension and summarization of medical transcripts.
 I would like you to read the following text and summarize it into three concise abstract paragraphs.
@@ -17,12 +18,14 @@ export function getSettings() {
     apiKey: localStorage.getItem(SETTINGS_KEYS.apiKey) || '',
     examples: localStorage.getItem(SETTINGS_KEYS.examples) || '',
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
+    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'eng'
   };
 }
-export function saveSettings({ apiKey, examples, systemPrompt }) {
+export function saveSettings({ apiKey, examples, systemPrompt, lang }) {
   localStorage.setItem(SETTINGS_KEYS.apiKey, apiKey);
   localStorage.setItem(SETTINGS_KEYS.examples, examples || '');
   localStorage.setItem(SETTINGS_KEYS.systemPrompt, systemPrompt);
+  if (lang) localStorage.setItem(SETTINGS_KEYS.lang, lang);
 }
 export function getOpenAIKey() {
   return getSettings().apiKey;
@@ -32,6 +35,42 @@ export function getExamples() {
 }
 export function getSystemPrompt() {
   return getSettings().systemPrompt;
+}
+export function getLang() {
+  return getSettings().lang;
+}
+export async function requireLang() {
+  let lang = localStorage.getItem(SETTINGS_KEYS.lang);
+  if (!lang) {
+    lang = 'eng';
+    localStorage.setItem(SETTINGS_KEYS.lang, lang);
+  }
+  await loadAndApplyTranslations(lang);
+}
+
+const translationEmitter = new EventTarget(); // Translation emitter for dynamic text updates
+let translations = {};
+export async function loadAndApplyTranslations(lang) {
+  const res = await fetch(`assets/locales/${lang}.json`);
+  translations = await res.json();
+  // Text content
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[key]) el.textContent = translations[key];
+  });
+  // Placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (translations[key]) el.placeholder = translations[key];
+  });
+  translationEmitter.dispatchEvent(new Event('translations-updated'));
+}
+export function onTranslationsUpdated(callback) {
+  translationEmitter.addEventListener('translations-updated', callback);
+}
+
+export function getLocaleText(key) {
+  return translations[key] || key;
 }
 
 // Modal logic
@@ -44,8 +83,11 @@ export function setupSettingsModal() {
   const apiKeyInput = document.getElementById('settingsApiKey');
   const examplesInput = document.getElementById('settingsExamples');
   const systemPromptInput = document.getElementById('settingsSystemPrompt');
+  const langSelect = document.getElementById('settingsLang');
   const apikeyShow = document.getElementById('settings-apikey-show');
   const apikeyHide = document.getElementById('settings-apikey-hide');
+
+  let originalLang = getLang();
 
   // Eye toggle
   apikeyShow.style.display = '';
@@ -65,8 +107,14 @@ export function setupSettingsModal() {
 
   // Open modal
   settingsBtn.addEventListener('click', () => openModal(false));
-  closeBtn.addEventListener('click', () => {
+  closeBtn.addEventListener('click', async () => {
     if (!closeBtn.disabled) settingsModal.close();
+    // If language was changed but not applied, revert UI language
+    if (langSelect.value !== originalLang) {
+        await loadAndApplyTranslations(originalLang);
+        langSelect.value = originalLang;
+    }
+      settingsModal.close();
   });
 
   // Validate
@@ -84,7 +132,8 @@ export function setupSettingsModal() {
     saveSettings({
       apiKey: apiKeyInput.value.trim(),
       examples: examplesInput.value.trim(),
-      systemPrompt: systemPromptInput.value.trim()
+      systemPrompt: systemPromptInput.value.trim(),
+      lang: langSelect.value
     });
     settingsModal.close();
   });
@@ -95,6 +144,8 @@ export function setupSettingsModal() {
     apiKeyInput.value = s.apiKey;
     examplesInput.value = s.examples;
     systemPromptInput.value = s.systemPrompt || DEFAULT_SYSTEM_PROMPT;
+    langSelect.value = s.lang || 'eng';
+    originalLang = langSelect.value;
     settingsModal.showModal();
     validate();
     if (force) {
@@ -105,6 +156,11 @@ export function setupSettingsModal() {
       closeBtn.style.opacity = 1;
     }
   }
+
+  // Language change in modal
+  langSelect.addEventListener('change', async () => {
+    await loadAndApplyTranslations(langSelect.value);
+  });
 
   // Expose for requireSettings
   window._openSettingsModal = openModal;

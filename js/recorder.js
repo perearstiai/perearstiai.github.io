@@ -1,4 +1,5 @@
 import { computeElapsedTime, getFormattedTime } from './utils.js';
+import { getLocaleText, onTranslationsUpdated } from './settings.js';
 
 export function setupRecorder() {
   const recordButton = document.getElementById('recordButton');
@@ -7,6 +8,8 @@ export function setupRecorder() {
   const recordedAudio = document.getElementById('recordedAudio');
   const clearBtn = document.getElementById('clearRecordedFile');
   const downloadBtn = document.getElementById('downloadRecordedFile');
+  const fileSourceIndicator = document.getElementById('recordedFileSource');
+  const fileNameSpan = document.getElementById('recordedFileName');
 
   let isRecording = false;
   let intervalId = null;
@@ -16,6 +19,13 @@ export function setupRecorder() {
   let streamBeingCaptured = null;
   let lastValidFile = null;
   let lastRecordedBlob = null;
+  let audioFileName = null;
+
+  // TODO use map to store the objects directly
+  let dynamicTextLocaleKeys = new Map([
+    [fileSourceIndicator, null],
+    [fileNameSpan, 'recording_no_file'],
+  ]);
 
   function setPlaybackEnabled(enabled) {
     recordedAudio.controls = true;
@@ -27,8 +37,49 @@ export function setupRecorder() {
       recordedAudio.tabIndex = -1;
     }
   }
+  function setFileSourceIndicator(source) {
+    if (source === 'recorded') {
+      fileSourceIndicator.textContent = getLocaleText('recording_file_source_recorded');
+      dynamicTextLocaleKeys.set(fileSourceIndicator, 'recording_file_source_recorded');
+      fileSourceIndicator.style.display = '';
+    } else if (source === 'uploaded') {
+      fileSourceIndicator.textContent = getLocaleText('recording_file_source_uploaded');
+      dynamicTextLocaleKeys.set(fileSourceIndicator, 'recording_file_source_uploaded');
+      fileSourceIndicator.style.display = '';
+    } else {
+      fileSourceIndicator.textContent = '';
+      dynamicTextLocaleKeys.set(fileSourceIndicator, null);
+      fileSourceIndicator.style.display = 'none';
+    }
+  }
+  function setFileNameDisplay(name) {
+    if(!name) {
+      fileNameSpan.textContent = getLocaleText('recording_no_file');
+      dynamicTextLocaleKeys.set(fileNameSpan, 'recording_no_file');
+    } else {
+      fileNameSpan.textContent = name;
+      dynamicTextLocaleKeys.set(fileNameSpan, null);
+    }
+  }
 
   recordedFile.value = "";
+  recordButton.textContent = getLocaleText("recording_start_button");
+  downloadBtn.style.display = "none";
+  setFileNameDisplay(null);
+  setFileSourceIndicator(null);
+
+  onTranslationsUpdated(() => {
+    // Update dynamic button text
+    recordButton.textContent = isRecording
+      ? getLocaleText("recording_stop_button")
+      : getLocaleText("recording_start_button");
+    // Update other dynamic texts
+    for (const [key,value] of dynamicTextLocaleKeys) {
+      if (key && value) {
+        key.textContent = getLocaleText(value);
+      }
+    }
+  });
 
   async function startRecording() {
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
@@ -52,7 +103,7 @@ export function setupRecorder() {
       }, 1000);
 
       recordButton.style.backgroundColor = "red";
-      recordButton.textContent = "Stop Recording";
+      recordButton.textContent = getLocaleText("recording_stop_button");
       isRecording = true;
     } catch (err) {
       alert('Could not start audio recording: ' + err.message);
@@ -67,8 +118,11 @@ export function setupRecorder() {
         stopStream();
 
         const audioBlob = new Blob(audioBlobs, { type: mediaRecorder.mimeType });
-        const audioFileName = "recording_" + getFormattedTime() + ".wav";
+        audioFileName = "recording_" + getFormattedTime() + ".ogg";
         const audioFile = new File([audioBlob], audioFileName);
+
+        setFileSourceIndicator('recorded');
+        setFileNameDisplay(audioFileName);
 
         // Set file input for downstream processing
         const dt = new DataTransfer();
@@ -116,7 +170,7 @@ export function setupRecorder() {
       clearInterval(intervalId);
       timer.textContent = "00:00";
       recordButton.style.backgroundColor = "";
-      recordButton.textContent = "Start Recording";
+      recordButton.textContent = getLocaleText("recording_start_button");
       isRecording = false;
     }
   });
@@ -124,7 +178,11 @@ export function setupRecorder() {
   recordedFile.addEventListener('change', () => {
     const file = recordedFile.files[0];
     if (!file) {
-      recordedAudio.src = "";
+      setFileSourceIndicator(null);
+      setFileNameDisplay('');
+      recordedAudio.pause();
+      recordedAudio.removeAttribute('src');
+      recordedAudio.load();
       setPlaybackEnabled(false);
       lastValidFile = null;
       lastRecordedBlob = null;
@@ -142,14 +200,13 @@ export function setupRecorder() {
         downloadBtn.style.display = lastRecordedBlob ? "" : "none";
       } else {
         recordedFile.value = "";
-        recordedAudio.pause();
-        recordedAudio.removeAttribute('src');
-        recordedAudio.load();
         setPlaybackEnabled(false);
         downloadBtn.style.display = "none";
       }
       return;
     }
+    setFileSourceIndicator('uploaded');
+    setFileNameDisplay(file.name);
     recordedAudio.src = URL.createObjectURL(file);
     setPlaybackEnabled(true);
     lastValidFile = file;
@@ -159,6 +216,8 @@ export function setupRecorder() {
 
   // Clear file logic
   clearBtn.addEventListener('click', () => {
+    setFileSourceIndicator(null);
+    setFileNameDisplay('');
     recordedFile.value = "";
     recordedAudio.pause();
     recordedAudio.removeAttribute('src');
@@ -176,7 +235,7 @@ export function setupRecorder() {
       const url = URL.createObjectURL(lastRecordedBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'recording.wav';
+      a.download = audioFileName; // Use the same name as above
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Family Doctor Assistant</title>
+    <title data-i18n="app_title">Family Doctor Assistant</title>
     <meta name="description" content="An assistant for family doctors that summarizes the conversation between the doctor and the patient." />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/css/style.css" />
@@ -13,11 +13,11 @@
   <body>
     <header>
       <nav class="header-content" aria-label="Main Header">
-        <img src="assets/img/app-logo.svg" alt="Family Doctor Assistant Logo" class="logo" />
-        <h1>Family Doctor Assistant</h1>
+        <img src="assets/img/app-logo.svg" class="logo" />
+        <h1 data-i18n="app_header_title">Family Doctor Assistant</h1>
         <button id="settingsBtn" class="settings-btn" aria-label="Settings">
+          <!-- TODO Add "Settings" explicitly here when viewport width is high (adjust the css for it then) -->
           <span class="settings-icon" aria-hidden="true">&#9881;</span>
-          <span class="visually-hidden">Settings</span>
         </button>
       </nav>
     </header>
@@ -26,10 +26,10 @@
       <!-- 1. Provide recording -->
       <section class="main-section">
         <div class="section-header">
-          <h2>1. Provide recording</h2>
+          <h2 data-i18n="recording_heading">1. Provide Recording</h2>
           <span class="section-help" tabindex="0" aria-label="Help: Provide recording">
             <span class="help-icon">?</span>
-            <span class="section-tooltip">
+            <span class="section-tooltip" data-i18n="recording_tooltip">
               You can record a new audio or upload an existing audio file. Start by clicking "Start Recording" or select a file below.
             </span>
           </span>
@@ -38,14 +38,30 @@
           <button type="button" id="recordButton">Start Recording</button>
           <span id="timer">00:00</span>
         </div>
-        <div class="row-group">
-          <label for="recordedFile">Recorded File:</label>
-          <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
-          <button type="button" id="clearRecordedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
-        </div>
-        <div class="row-group">
-          <audio id="recordedAudio" controls></audio>
-          <button type="button" id="downloadRecordedFile" class="icon-btn" aria-label="Download recording">&#128190;</button>
+
+        <div id="recordingBox">
+          <div class="row-group">
+            <div class="audio-file-input-wrapper">
+              <label class="custom-file-label">
+                <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
+                <span class="custom-file-btn" data-i18n="recording_browse_button">Browse…</span>
+              </label>
+              
+              <div id="selectedInfoWrapper">
+                <label id="selectedFileText" for="recordedFile" data-i18n="recording_recorded_file">Selected File:</label>
+                <div id="recordedFileInfo">
+                  <span id="recordedFileName" class="custom-file-name"></span>
+                  <div id="recordedFileSource"></div>
+                </div>
+              </div>
+
+              <button type="button" id="clearRecordedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
+              <button type="button" id="downloadRecordedFile" class="icon-btn" aria-label="Download recording">&#128190;</button>
+            </div>
+          </div>
+          <div class="row-group">
+            <audio id="recordedAudio" controls></audio>
+          </div>
         </div>
       </section>
       <hr />
@@ -53,19 +69,19 @@
       <!-- 2. Transcribe -->
       <section class="main-section">
         <div class="section-header">
-          <h2>2. Transcribe</h2>
+          <h2 data-i18n="transcription_heading">2. Transcribe</h2>
           <span class="section-help" tabindex="0" aria-label="Help: Transcribe">
             <span class="help-icon">?</span>
-            <span class="section-tooltip">
+            <span class="section-tooltip" data-i18n="transcription_tooltip">
               Click "Transcribe" to convert your audio to text. The transcription will appear in the box below.
             </span>
           </span>
         </div>
         <div class="row-group">
-          <button id="transcribeButton" type="button">Transcribe</button>
+          <button id="transcribeButton" type="button" data-i18n="transcription_button">Transcribe</button>
         </div>
         <div class="row-group">
-          <textarea id="transcriptionBox" rows="4" placeholder="Transcribed text will appear here"></textarea>
+          <textarea id="transcriptionBox" rows="4" data-i18n-placeholder="transcription_placeholder" placeholder="Transcribed text will appear here"></textarea>
         </div>
       </section>
       <hr />
@@ -73,37 +89,37 @@
       <!-- 3. Summarize -->
       <section class="main-section">
         <div class="section-header">
-          <h2>3. Summarize</h2>
+          <h2 data-i18n="summary_heading">3. Summarize</h2>
           <span class="section-help" tabindex="0" aria-label="Help: Summarize">
             <span class="help-icon">?</span>
-            <span class="section-tooltip">
+            <span class="section-tooltip" data-i18n="summary_tooltip">
               Upload a transcription file or use the text above, then click "Summarize" to get a summary of the conversation.
             </span>
           </span>
         </div>
         <div class="row-group">
-          <label for="transcribedFile">Transcribed File:</label>
+          <label for="transcribedFile" data-i18n="summary_transcribed_file">Transcribed File:</label>
           <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
           <button type="button" id="clearTranscribedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
         </div>
         <div class="row-group">
-          <button id="summarizeButton" type="button">Summarize</button>
+          <button id="summarizeButton" type="button" data-i18n="summary_button">Summarize</button>
         </div>
         <div class="row-group">
-          <textarea id="summaryBox" rows="4" placeholder="Summary will appear here"></textarea>
+          <textarea id="summaryBox" rows="4" data-i18n-placeholder="summary_placeholder" placeholder="Summary will appear here"></textarea>
         </div>
       </section>
     </main>
 
     <footer>
       <div class="footer-links">
-        <button id="aboutBtn" class="footer-link-btn" type="button">About</button>
+        <button id="aboutBtn" class="footer-link-btn" type="button" data-i18n="footer_about">About</button>
         <span class="footer-link-sep" aria-hidden="true">|</span>
-        <button id="privacyPolicyBtn" class="footer-link-btn" type="button">Privacy Policy</button>
+        <button id="privacyPolicyBtn" class="footer-link-btn" type="button" data-i18n="footer_privacy">Privacy Policy</button>
         <span class="footer-link-sep" aria-hidden="true">|</span>
-        <button id="attributionsBtn" class="footer-link-btn" type="button">Attributions</button>
+        <button id="attributionsBtn" class="footer-link-btn" type="button" data-i18n="footer_attributions">Attributions</button>
       </div>
-      <small class="footer-text">
+      <small class="footer-text" data-i18n="footer_app_text">
         &copy; 2025 Family Doctor Assistant
       </small>
     </footer>
@@ -111,10 +127,18 @@
     <!-- Settings Modal -->
     <dialog id="settingsModal">
       <form method="dialog" id="settingsForm" autocomplete="off">
-        <h2>Settings</h2>
-        <label for="settingsApiKey">OpenAI Key <span class="required">*</span></label>
+        <h2 data-i18n="settings_title">Settings</h2>
+        <label for="settingsLang" data-i18n="settings_language">Language</label>
+        <select id="settingsLang">
+          <option value="eng">English</option>
+          <option value="est">Eesti</option>
+        </select>
+        <span class="label-container">          
+          <label for="settingsApiKey" data-i18n="settings_openai_key">OpenAI Key</label>
+          <span class="required">*</span>
+        </span>
         <span class="input-eye-wrapper">
-          <input id="settingsApiKey" type="password" required />
+          <input id="settingsApiKey" type="password" autocomplete="off" required />
           <button type="button" id="settings-apikey-show" class="eye-btn" aria-label="Show API key">
             <img src="assets/img/eye-show.svg" alt="Show" class="form-icon" />
           </button>
@@ -122,16 +146,19 @@
             <img src="assets/img/eye-hide.svg" alt="Hide" class="form-icon" />
           </button>
         </span>
-        <label for="settingsExamples">Examples (optional)</label>
-        <textarea id="settingsExamples" rows="2" placeholder="Add example conversations or prompts (optional)"></textarea>
-        <details id="advancedSettings">
-          <summary>Advanced</summary>
-          <label for="settingsSystemPrompt">System Prompt <span class="required">*</span></label>
-          <textarea id="settingsSystemPrompt" rows="4" required></textarea>
+        <label for="settingsExamples" data-i18n="settings_example_summaries">Example Summaries (optional)</label>
+        <textarea id="settingsExamples" rows="2" data-i18n-placeholder="settings_example_summaries_placeholder" placeholder="Add example summaries here"></textarea>
+        <details>
+          <summary data-i18n="settings_advanced">Advanced</summary>
+          <span class="label-container">
+            <label for="settingsSystemPrompt" data-i18n="settings_advanced_system_prompt">System Prompt</label>
+            <span class="required">*</span>
+          </span>
+          <textarea id="settingsSystemPrompt" rows="8" required></textarea>
         </details>
         <div class="modal-actions">
-          <button type="submit" id="applySettingsBtn">Apply</button>
-          <button type="button" id="closeSettingsBtn">Close</button>
+          <button type="submit" id="applySettingsBtn" data-i18n="settings_apply">Apply</button>
+          <button type="button" id="closeSettingsBtn" data-i18n="settings_close">Close</button>
         </div>
       </form>
     </dialog>
@@ -139,10 +166,10 @@
     <!-- About Modal -->
     <dialog id="aboutModal">
       <form method="dialog">
-        <h2>About</h2>
-        <p>Family Doctor Assistant helps to summarize doctor-patient conversations.</p>
+        <h2 data-i18n="about_title">About</h2>
+        <p data-i18n="about_description">Family Doctor Assistant helps to summarize doctor-patient conversations.</p>
         <div class="modal-actions">
-          <button type="submit">Close</button>
+          <button type="submit" data-i18n="modal_close">Close</button>
         </div>
       </form>
     </dialog>
@@ -150,10 +177,10 @@
     <!-- Privacy Policy Modal -->
     <dialog id="privacyPolicyModal">
       <form method="dialog">
-        <h2>Privacy Policy</h2>
-        <p>Privacy policy text here.</p>
+        <h2 data-i18n="privacy_title">Privacy Policy</h2>
+        <p data-i18n="privacy_description">Privacy policy text here.</p>
         <div class="modal-actions">
-          <button type="submit">Close</button>
+          <button type="submit" data-i18n="modal_close">Close</button>
         </div>
       </form>
     </dialog>
@@ -161,7 +188,8 @@
     <!-- Attributions Modal -->
     <dialog id="attributionsModal">
       <form method="dialog">
-        <h2>Icon Attributions</h2>
+        <h2 data-i18n="attributions_title">Attributions</h2>
+        <h3 data-i18n="attributions_icons_title">Icons</h3>
         <ul>
           <li>
             <a href="https://www.svgrepo.com/svg/528683/stethoscope" target="_blank" rel="noopener">App Icon</a>
@@ -177,7 +205,7 @@
           </li>
         </ul>
         <div class="modal-actions">
-          <button type="submit">Close</button>
+          <button type="submit" data-i18n="modal_close">Close</button>
         </div>
       </form>
     </dialog>

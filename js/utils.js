@@ -12,7 +12,7 @@ export function computeElapsedTime(startTime) {
   return hours === "00" ? `${minutes}:${seconds}` : `${hours}:${minutes}:${seconds}`;
 }
 
-// Get formatted time string for filenames: "yymmdd_hhmm"
+// Get formatted time string for filenames: "yymmdd_hhmmss"
 export function getFormattedTime() {
   const today = new Date();
   const y = today.getFullYear().toString().slice(2);
@@ -20,5 +20,6 @@ export function getFormattedTime() {
   const d = String(today.getDate()).padStart(2, '0');
   const h = String(today.getHours()).padStart(2, '0');
   const mi = String(today.getMinutes()).padStart(2, '0');
-  return `${y}${m}${d}_${h}${mi}`;
+  const s = String(today.getSeconds()).padStart(2, '0');
+  return `${y}${m}${d}_${h}${mi}${s}`;
 }

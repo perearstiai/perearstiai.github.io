@@ -1,11 +1,12 @@
 import { setupRecorder } from './recorder.js';
 import { setupTranscriber } from './transcriber.js';
 import { setupSummarizer } from './summarizer.js';
-import { setupSettingsModal, requireSettings } from './settings.js';
+import { setupSettingsModal, requireSettings, requireLang } from './settings.js';
 import { setupFooterLinks } from './footer-links.js';
 
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await requireLang();
   setupSettingsModal();
   requireSettings().then(() => {
     setupRecorder();
