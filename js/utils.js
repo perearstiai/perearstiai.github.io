@@ -1,15 +1,19 @@
 // Compute elapsed time since startTime (Date object), returns "mm:ss" or "hh:mm:ss"
 export function computeElapsedTime(startTime) {
   const endTime = new Date();
-  let timeDiff = Math.floor((endTime - startTime) / 1000);
+  let timeDiffMs = endTime - startTime;
+  let timeDiff = Math.floor(timeDiffMs / 1000);
 
+  const hundredths = String(Math.floor((timeDiffMs % 1000) / 10)).padStart(2, '0');
   const seconds = String(timeDiff % 60).padStart(2, '0');
   timeDiff = Math.floor(timeDiff / 60);
   const minutes = String(timeDiff % 60).padStart(2, '0');
   timeDiff = Math.floor(timeDiff / 60);
   const hours = String(timeDiff).padStart(2, '0');
 
-  return hours === "00" ? `${minutes}:${seconds}` : `${hours}:${minutes}:${seconds}`;
+  return hours === "00"
+    ? `${minutes}:${seconds}.${hundredths}`
+    : `${hours}:${minutes}:${seconds}.${hundredths}`;  
 }
 
 // Get formatted time string for filenames: "yymmdd_hhmmss"

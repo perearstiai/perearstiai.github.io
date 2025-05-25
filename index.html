@@ -16,7 +16,6 @@
         <img src="assets/img/app-logo.svg" class="logo" />
         <h1 data-i18n="app_header_title">Family Doctor Assistant</h1>
         <button id="settingsBtn" class="settings-btn" aria-label="Settings">
-          <!-- TODO Add "Settings" explicitly here when viewport width is high (adjust the css for it then) -->
           <span class="settings-icon" aria-hidden="true">&#9881;</span>
         </button>
       </nav>
@@ -55,8 +54,8 @@
                 </div>
               </div>
 
-              <button type="button" id="clearRecordedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
               <button type="button" id="downloadRecordedFile" class="icon-btn" aria-label="Download recording">&#128190;</button>
+              <button type="button" id="clearRecordedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
             </div>
           </div>
           <div class="row-group">
@@ -97,11 +96,13 @@
             </span>
           </span>
         </div>
+        <!--
         <div class="row-group">
           <label for="transcribedFile" data-i18n="summary_transcribed_file">Transcribed File:</label>
           <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
           <button type="button" id="clearTranscribedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
         </div>
+        -->
         <div class="row-group">
           <button id="summarizeButton" type="button" data-i18n="summary_button">Summarize</button>
         </div>

@@ -227,7 +227,6 @@ button:focus {
 .icon-btn {
   background: none;
   border: none;
-  color: #e53935;
   font-size: 1.5em;
   cursor: pointer;
   margin-left: 0.5em;
@@ -235,11 +234,12 @@ button:focus {
   align-items: center;
   padding: 0 0.2em;
   transition: color 0.2s;
+  background: #d4e6f5;
 }
 
 .icon-btn:hover,
 .icon-btn:focus {
-  color: #b71c1c;
+  background: #b71c1c;
   outline: none;
 }
 
@@ -307,71 +307,61 @@ audio {
   background: #125ea2;
 }
 
-.custom-file-name {
-  font-size: 0.97em;
-  color: #1976d2;
-  font-weight: 500;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: middle;
-}
-
 #recordedFileInfo {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  margin-left: 1em;
-  margin-right: 1em;
-  gap: 0.5em;
+  margin-top: 0.15em;
+  margin-bottom: 0.1em;
+  margin-left: 0.8em;
+  margin-right: 0.15em;
+  padding: 0.3em;
+  gap: 0.3em;
+  border-radius: 8px;
   background: #f5faff;
 }
 
 #recordedFileSource {
-  margin-left: 0.2em;
   padding: 0.1em 0.7em;
   font-size: 0.8em;
-  border-radius: 1em;
-  background: #e3f2fd;
+  border-radius: 8px;
+  background: #dee1e4;
   color: #1976d2;
   font-weight: 600;
   letter-spacing: 0.02em;
-  border: 1px solid #b3d4fc;
-  min-width: 90px;
+  border: 1px solid #1e5ca8;
   text-align: center;
-  transition: background 0.2s, color 0.2s;
 }
 #recordedFileName {
-  margin-left: 0.5em;
-  font-weight: bold;
+  margin-left: 0.4em;
+  margin-right: 0.5em;
+  max-width: 30vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: 500;
   font-size: 1em;
   color: black;
 }
 
 .audio-file-input-wrapper .icon-btn {
   margin-left: 0.2em;
+  padding: 0.2em;
   font-size: 1.2em;
-  color: #e53935;
-}
-
-.audio-file-input-wrapper .icon-btn:hover,
-.audio-file-input-wrapper .icon-btn:focus {
-  color: #b71c1c;
 }
 
 #selectedInfoWrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #a5bacf;
+  background: #708191;
+  border-radius: 8px;
 }
 
 #selectedFileText {
   color: #fff;
+  font-weight: bold;
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  margin-left: 0.5em;
 }
 
 /* =========================
@@ -527,12 +517,12 @@ dialog#settingsModal {
   background: none;
   border: none;
   color: #fff;
-  font-size: 2rem;
   margin-left: auto;
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: 0 0.5em;
+  padding: 0.5em;
+  margin-right: 10px;
 }
 
 .settings-btn:focus {
@@ -540,7 +530,7 @@ dialog#settingsModal {
 }
 
 .settings-icon {
-  font-size: 2rem;
+  font-size: 3rem;
 }
 
 /* =========================

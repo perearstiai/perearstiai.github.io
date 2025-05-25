@@ -18,17 +18,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Recorded file
     const recordedFile = document.getElementById('recordedFile');
     const clearRecordedFile = document.getElementById('clearRecordedFile');
+    const timer = document.getElementById('timer');
     function updateClearRecordedFileBtn() {
       clearRecordedFile.style.display = recordedFile.files.length > 0 ? '' : 'none';
     }
     recordedFile.addEventListener('change', updateClearRecordedFileBtn);
     clearRecordedFile.addEventListener('click', () => {
       recordedFile.value = '';
+      timer.textContent = '00:00.00'; // Reset timer display
       recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
     });
     updateClearRecordedFileBtn();
 
-    // Transcribed file
+    // Transcribed file (not used as of now)
+    /*
     const transcribedFile = document.getElementById('transcribedFile');
     const clearTranscribedFile = document.getElementById('clearTranscribedFile');
     function updateClearTranscribedFileBtn() {
@@ -40,5 +43,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       transcribedFile.dispatchEvent(new Event('change', { bubbles: true }));
     });
     updateClearTranscribedFileBtn();
+    */
   });
 });

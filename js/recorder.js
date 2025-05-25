@@ -21,11 +21,16 @@ export function setupRecorder() {
   let lastRecordedBlob = null;
   let audioFileName = null;
 
-  // TODO use map to store the objects directly
   let dynamicTextLocaleKeys = new Map([
     [fileSourceIndicator, null],
     [fileNameSpan, 'recording_no_file'],
   ]);
+
+  function updateClearBtnVisibility() {
+    // Show clear button if there is a file in the input (either uploaded or injected by recording)
+    clearBtn.style.display = recordedFile.files && recordedFile.files.length > 0 ? '' : 'none';
+  }
+
 
   function setPlaybackEnabled(enabled) {
     recordedAudio.controls = true;
@@ -65,6 +70,7 @@ export function setupRecorder() {
   recordedFile.value = "";
   recordButton.textContent = getLocaleText("recording_start_button");
   downloadBtn.style.display = "none";
+  timer.textContent = "00:00.00"; // Reset timer display
   setFileNameDisplay(null);
   setFileSourceIndicator(null);
 
@@ -100,7 +106,7 @@ export function setupRecorder() {
       startTime = new Date();
       intervalId = setInterval(() => {
         timer.textContent = computeElapsedTime(startTime);
-      }, 1000);
+      }, 10);
 
       recordButton.style.backgroundColor = "red";
       recordButton.textContent = getLocaleText("recording_stop_button");
@@ -144,6 +150,8 @@ export function setupRecorder() {
           downloadBtn.style.display = "none";
         }
 
+        updateClearBtnVisibility();
+
         resetRecordingProperties();
         resolve();
       }, { once: true });
@@ -168,7 +176,6 @@ export function setupRecorder() {
     } else {
       await stopRecording();
       clearInterval(intervalId);
-      timer.textContent = "00:00";
       recordButton.style.backgroundColor = "";
       recordButton.textContent = getLocaleText("recording_start_button");
       isRecording = false;
@@ -212,6 +219,8 @@ export function setupRecorder() {
     lastValidFile = file;
     lastRecordedBlob = null;
     downloadBtn.style.display = "none";
+    timer.textContent = "00:00.00"; // Reset timer display
+    updateClearBtnVisibility();
   });
 
   // Clear file logic
@@ -227,6 +236,7 @@ export function setupRecorder() {
     lastRecordedBlob = null;
     downloadBtn.style.display = "none";
     recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
+    updateClearBtnVisibility();
   });
 
   // Download logic
