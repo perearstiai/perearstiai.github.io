@@ -4,6 +4,17 @@ import { setupSummarizer } from './summarizer.js';
 import { setupSettingsModal, requireSettings, requireLang } from './settings.js';
 import { setupFooterLinks } from './footer-links.js';
 
+// TODO
+/*
+1. Make language selection dropdown prettier.
+2. Add a loading spinners to corresponding places when waiting for corresponding API responses.
+3. Add options to settings to select different transcription and summarization models.
+4. Make certain page components more responsive.
+5. Right now, it is briefly seen when js is gradually applied as dom is loaded, 
+    but it would be better to hide the main content until everything is ready (use loading screen with spinner).
+6. Do something about using (text) file of transcription as input for summarization.
+7. Refactor and clean up code (including HTML and CSS).
+*/
 
 window.addEventListener('DOMContentLoaded', async () => {
   await requireLang();
