@@ -90,7 +90,10 @@ export function setupSettingsModal() {
   const apiKeyInput = document.getElementById('settingsApiKey');
   const examplesInput = document.getElementById('settingsExamples');
   const systemPromptInput = document.getElementById('settingsSystemPrompt');
-  const langSelect = document.getElementById('settingsLang');
+  const langHiddenInput = document.getElementById('settingsLang');
+  const customDropdown = document.getElementById('customLangDropdown');
+  const customDropdownOptions = document.getElementById('customLangOptions');
+  const customDropdownSelected = document.getElementById('customLangSelected');
   const apikeyShow = document.getElementById('settings-apikey-show');
   const apikeyHide = document.getElementById('settings-apikey-hide');
 
@@ -117,11 +120,22 @@ export function setupSettingsModal() {
   closeBtn.addEventListener('click', async () => {
     if (!closeBtn.disabled) settingsModal.close();
     // If language was changed but not applied, revert UI language
-    if (langSelect.value !== originalLang) {
-        await loadAndApplyTranslations(originalLang);
-        langSelect.value = originalLang;
+    if (langHiddenInput.value !== originalLang) {
+      await loadAndApplyTranslations(originalLang);
+      langHiddenInput.value = originalLang;
+      // Also update custom dropdown UI
+      if (customDropdownOptions && customDropdownSelected) {
+        customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+          if (opt.getAttribute('data-value') === originalLang) {
+            opt.classList.add('selected');
+            customDropdownSelected.textContent = opt.textContent;
+          } else {
+            opt.classList.remove('selected');
+          }
+        });
+      }
     }
-      settingsModal.close();
+    settingsModal.close();
   });
 
   // Validate
@@ -140,7 +154,7 @@ export function setupSettingsModal() {
       apiKey: apiKeyInput.value.trim(),
       examples: examplesInput.value.trim(),
       systemPrompt: systemPromptInput.value.trim(),
-      lang: langSelect.value
+      lang: langHiddenInput.value
     });
     settingsModal.close();
   });
@@ -151,8 +165,19 @@ export function setupSettingsModal() {
     apiKeyInput.value = s.apiKey;
     examplesInput.value = s.examples;
     systemPromptInput.value = s.systemPrompt || DEFAULT_SYSTEM_PROMPT;
-    langSelect.value = s.lang || 'eng';
-    originalLang = langSelect.value;
+    langHiddenInput.value = s.lang || 'est';
+    originalLang = langHiddenInput.value;
+    // Set custom dropdown to current language
+    if (customDropdown && customDropdownOptions && customDropdownSelected) {
+      customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        if (opt.getAttribute('data-value') === langHiddenInput.value) {
+          opt.classList.add('selected');
+          customDropdownSelected.textContent = opt.textContent;
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
+    }
     settingsModal.showModal();
     validate();
     if (force) {
@@ -163,11 +188,6 @@ export function setupSettingsModal() {
       closeBtn.style.opacity = 1;
     }
   }
-
-  // Language change in modal
-  langSelect.addEventListener('change', async () => {
-    await loadAndApplyTranslations(langSelect.value);
-  });
 
   // Expose for requireSettings
   window._openSettingsModal = openModal;
