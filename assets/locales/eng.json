@@ -38,7 +38,7 @@
     "about_title": "About",
     "about_description": "Family Doctor Assistant is a tool designed to help family doctors summarize conversations with their patients. It uses advanced speech recognition and natural language processing technologies to provide accurate transcriptions and summaries.",
     "privacy_title": "Privacy Policy",
-    "privacy_description": "[TODO] Privacy policy text here",
+    "privacy_description": "Family Doctor Assistant runs in your browser and communicates only with OpenAI servers. Beware that the recorded audio and transcript are sent to OpenAI for processing. It is your responsibility to ensure the legality of this. Your OpenAI key is not visible to anyone else.",
     "attributions_title": "Attributions",
     "attributions_icons_title": "Icons"
 }

@@ -2,7 +2,7 @@
     "app_title": "Perearsti Abiline",
     "app_description": "Perearsti abistav programm, mis teeb kokkuvõtte arsti ja patsiendi vahelisest vestlusest.",
     "app_header_title": "Perearsti Abiline",
-    "settings": "Seaded",
+    "settings_title": "Seaded",
     "settings_language": "Keel",
     "settings_openai_key": "OpenAI võti",
     "settings_example_summaries": "Näidiskokkuvõtted (valikuline)",
@@ -38,7 +38,7 @@
     "about_title": "Teave",
     "about_description": "Perearsti Abiline on tööriist, mis aitab perearstidel teha kokkuvõtteid arsti ja patsiendi vahelistest vestlustest. Programm kasutab vestluse transkribeerimiseks kõnetuvastust ja kokkuvõtte tegemiseks loomuliku keele töötlust.",
     "privacy_title": "Privaatsuspoliitika",
-    "privacy_description": "[TODO] Privaatsuspoliitika tekst...",
+    "privacy_description": "Perearsti Assistent töötab sinu brauseris ja suhtleb ainult OpenAI serveritega. Pane tähele, et helisalvestis ja transkriptsioon saadetakse OpenAI-le töötluseks. Selle seaduslikkus on täielikult sinu enda vastutusel. OpenAI võti pole nähtav kellelegi muule peale sinu.",
     "attributions_title": "Viited",
     "attributions_icons_title": "Ikoonid"
 }
