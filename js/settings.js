@@ -18,7 +18,7 @@ export function getSettings() {
     apiKey: localStorage.getItem(SETTINGS_KEYS.apiKey) || '',
     examples: localStorage.getItem(SETTINGS_KEYS.examples) || '',
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
-    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'eng'
+    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est'
   };
 }
 export function saveSettings({ apiKey, examples, systemPrompt, lang }) {
@@ -42,7 +42,7 @@ export function getLang() {
 export async function requireLang() {
   let lang = localStorage.getItem(SETTINGS_KEYS.lang);
   if (!lang) {
-    lang = 'eng';
+    lang = 'est'; // Default to Estonian if not set
     localStorage.setItem(SETTINGS_KEYS.lang, lang);
   }
   await loadAndApplyTranslations(lang);

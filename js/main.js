@@ -9,6 +9,7 @@ import { setupFooterLinks } from './footer-links.js';
 1. Make language selection dropdown prettier.
 2. Add loading spinners to corresponding places when waiting for corresponding API responses.
 3. Disable later sections if no input is provided in previous sections.
+    Also provide info messages why something is disabled (e.g. on hovering the disabled component).
 4. Refactor and clean up code (including HTML and CSS).
 5. Add options to settings to select different transcription and summarization models.
 6. Make certain page components more responsive.
