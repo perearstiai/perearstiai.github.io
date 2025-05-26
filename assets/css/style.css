@@ -433,6 +433,48 @@ dialog#settingsModal {
   margin-top: 0.5em;
 }
 
+
+
+#settingsLang {
+  width: 20%;
+  padding: 0.5em 1.2em;
+  border-radius: 6px;
+  border: 1.5px solid #1976d2;
+  background: #f5faff;
+  color: #1976d2;
+  font-size: 1.08em;
+  font-weight: 600;
+  margin-bottom: 1em;
+  margin-top: 0.2em;
+  transition: border 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px rgba(25, 118, 210, 0.07);
+  cursor: pointer;
+  outline: none;
+}
+
+#settingsLang:focus, #settingsLang:hover {
+  border: 2px solid #125ea2;
+  background: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+}
+
+#settingsLang option {
+  color: #1976d2;
+  background: #fff;
+  font-weight: 500;
+}
+
+/* Optional: Add a dropdown arrow for better UX */
+#settingsLang {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' stroke='%231976d2' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8em center;
+  background-size: 1.2em;
+  padding-right: 2.5em;
+}
+
+
+
 #settingsForm textarea,
 #settingsForm input[type="password"],
 #settingsForm input[type="text"] {

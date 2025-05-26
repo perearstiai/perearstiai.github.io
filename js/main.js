@@ -14,7 +14,8 @@ import { setupFooterLinks } from './footer-links.js';
 6. Make certain page components more responsive.
 7. Right now, it is briefly seen when js is gradually applied as dom is loaded, 
     but it would be better to hide the main content until everything is ready (use loading screen with spinner instead).
-8. Do something about using (text) file of transcription as input for summarization.
+8. Animate the settings button on hover (e.g., rotate it).
+9. Do something about using (text) file of transcription as input for summarization.
 */
 
 window.addEventListener('DOMContentLoaded', async () => {
