@@ -7,13 +7,14 @@ import { setupFooterLinks } from './footer-links.js';
 // TODO
 /*
 1. Make language selection dropdown prettier.
-2. Add a loading spinners to corresponding places when waiting for corresponding API responses.
-3. Add options to settings to select different transcription and summarization models.
-4. Make certain page components more responsive.
-5. Right now, it is briefly seen when js is gradually applied as dom is loaded, 
-    but it would be better to hide the main content until everything is ready (use loading screen with spinner).
-6. Do something about using (text) file of transcription as input for summarization.
-7. Refactor and clean up code (including HTML and CSS).
+2. Add loading spinners to corresponding places when waiting for corresponding API responses.
+3. Disable later sections if no input is provided in previous sections.
+4. Refactor and clean up code (including HTML and CSS).
+5. Add options to settings to select different transcription and summarization models.
+6. Make certain page components more responsive.
+7. Right now, it is briefly seen when js is gradually applied as dom is loaded, 
+    but it would be better to hide the main content until everything is ready (use loading screen with spinner instead).
+8. Do something about using (text) file of transcription as input for summarization.
 */
 
 window.addEventListener('DOMContentLoaded', async () => {
