@@ -165,7 +165,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // --- Universal Expand Button Logic ---
     function setupUniversalExpandButtons() {
       document.querySelectorAll('textarea').forEach((textarea, idx) => {
-        // Remove any existing expand button in the wrapper
+        // Only add expand button if not already present
         let wrapper = textarea.closest('.copy-textarea-wrapper') || textarea.closest('.textarea-expand-wrapper');
         if (!wrapper) {
           wrapper = document.createElement('div');
@@ -177,6 +177,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         const oldBtn = wrapper.querySelector('.expand-arrow-btn');
         if (oldBtn) oldBtn.remove();
         addExpandBtn(textarea, idx, wrapper);
+        // Only trigger input event once to update expand button for default value
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
       });
     }
 
@@ -205,10 +207,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       btn.appendChild(tooltip);
       wrapper.appendChild(btn);
 
-      let expanded = false;
+      // Use a property on the textarea to track expanded state
+      if (typeof textarea._expanded === 'undefined') textarea._expanded = false;
 
       function updateUI() {
-        if (expanded) {
+        if (textarea._expanded) {
           btn.classList.add('expanded');
           textarea.classList.add('expanded-textarea');
           arrow.style.transform = 'rotate(180deg)';
@@ -234,8 +237,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Hide expand button if textarea is disabled/loading
         if (textarea.disabled) {
           // If expanded, collapse before hiding
-          if (expanded) {
-            expanded = false;
+          if (textarea._expanded) {
+            textarea._expanded = false;
             updateUI();
           }
           btn.style.display = 'none';
@@ -249,7 +252,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
 
       btn.addEventListener('click', () => {
-        expanded = !expanded;
+        textarea._expanded = !textarea._expanded;
         updateUI();
       });
 
@@ -258,11 +261,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
 
       btn.addEventListener('mouseenter', () => {
-        tooltip.textContent = expanded ? getLocaleText('collapse') : getLocaleText('expand');
+        tooltip.textContent = textarea._expanded ? getLocaleText('collapse') : getLocaleText('expand');
         tooltip.style.opacity = 1;
       });
       btn.addEventListener('focus', () => {
-        tooltip.textContent = expanded ? getLocaleText('collapse') : getLocaleText('expand');
+        tooltip.textContent = textarea._expanded ? getLocaleText('collapse') : getLocaleText('expand');
         tooltip.style.opacity = 1;
       });
       btn.addEventListener('mouseleave', () => {
@@ -273,7 +276,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       });
 
       textarea.addEventListener('input', () => {
-        if (expanded) {
+        if (textarea._expanded) {
           textarea.style.height = textarea.scrollHeight + 2 + 'px';
         }
         checkExpandNeeded();
@@ -292,8 +295,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Hide expand button if textarea is disabled/loading
         if (textarea.disabled) {
           // If expanded, collapse before hiding
-          if (expanded) {
-            expanded = false;
+          if (textarea._expanded) {
+            textarea._expanded = false;
             updateUI();
           }
           btn.style.display = 'none';

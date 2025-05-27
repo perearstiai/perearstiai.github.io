@@ -187,6 +187,10 @@ export function setupSettingsModal() {
       closeBtn.disabled = false;
       closeBtn.style.opacity = 1;
     }
+    // Ensure expand button logic is applied to the system prompt textarea
+    if (window.setupUniversalExpandButtons) {
+      window.setupUniversalExpandButtons();
+    }
   }
 
   // Expose for requireSettings
