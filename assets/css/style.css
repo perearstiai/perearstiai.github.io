@@ -625,8 +625,13 @@ dialog#settingsModal {
   outline: 2px solid #fff;
 }
 
-.settings-icon {
+#settingsIcon {
   font-size: 3rem;
+  transition: transform 0.25s cubic-bezier(.4,2,.6,1);
+}
+.settings-btn:focus #settingsIcon,
+.settings-btn:hover #settingsIcon {
+  transform: rotate(360deg);
 }
 
 /* =========================
