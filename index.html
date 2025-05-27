@@ -80,7 +80,13 @@
           <button id="transcribeButton" type="button" data-i18n="transcription_button">Transcribe</button>
         </div>
         <div class="row-group">
-          <textarea id="transcriptionBox" rows="4" data-i18n-placeholder="transcription_placeholder" placeholder="Transcribed text will appear here"></textarea>
+          <div class="copy-textarea-wrapper">
+            <button type="button" class="copy-btn" id="copyTranscriptionBtn" aria-label="Copy transcription">
+              <img class="copy-icon" id="copyTranscriptionIcon" src="assets/img/copy-icon.svg" alt="" />
+              <span class="copy-tooltip" id="copyTranscriptionTooltip" data-i18n="copy">Copy</span>
+            </button>
+            <textarea id="transcriptionBox" rows="4" data-i18n-placeholder="transcription_placeholder" placeholder="Transcribed text will appear here"></textarea>
+          </div>
         </div>
       </section>
       <hr />
@@ -107,7 +113,13 @@
           <button id="summarizeButton" type="button" data-i18n="summary_button">Summarize</button>
         </div>
         <div class="row-group">
-          <textarea id="summaryBox" rows="4" data-i18n-placeholder="summary_placeholder" placeholder="Summary will appear here"></textarea>
+          <div class="copy-textarea-wrapper">
+            <button type="button" class="copy-btn" id="copySummaryBtn" aria-label="Copy summary">
+              <img class="copy-icon" id="copySummaryIcon" src="assets/img/copy-icon.svg" alt="" />
+              <span class="copy-tooltip" id="copySummaryTooltip" data-i18n="copy">Copy</span>
+            </button>
+            <textarea id="summaryBox" rows="4" data-i18n-placeholder="summary_placeholder" placeholder="Summary will appear here"></textarea>
+          </div>
         </div>
       </section>
     </main>

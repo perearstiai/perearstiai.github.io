@@ -40,5 +40,8 @@
     "privacy_title": "Privaatsuspoliitika",
     "privacy_description": "Perearsti Assistent töötab sinu brauseris ja suhtleb ainult OpenAI serveritega. Pane tähele, et helisalvestis ja transkriptsioon saadetakse OpenAI-le töötluseks. Selle seaduslikkus on täielikult sinu enda vastutusel. OpenAI võti pole nähtav kellelegi muule peale sinu.",
     "attributions_title": "Viited",
-    "attributions_icons_title": "Ikoonid"
+    "attributions_icons_title": "Ikoonid",
+    "copy": "Kopeeri",
+    "copied": "Kopeeritud!",
+    "copy_error": "Kopeerimine nurjus!"
 }
