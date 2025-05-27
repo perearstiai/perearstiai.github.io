@@ -8,6 +8,7 @@ export function setupTranscriber() {
   transcribeButton.addEventListener('click', async () => {
     const apiKey = getOpenAIKey().trim();
     const file = recordedFile.files[0];
+    const spinner = document.getElementById('transcriptionSpinner');
 
     if (!apiKey) {
       alert('Please enter your OpenAI API key in settings.');
@@ -18,7 +19,13 @@ export function setupTranscriber() {
       return;
     }
 
+    transcribeButton.disabled = true;
     transcriptionBox.value = 'Transcribing...';
+    spinner.removeAttribute('hidden');
+    spinner.style.display = 'block';
+    transcriptionBox.classList.add('textarea-loading');
+    transcriptionBox.disabled = true;
+    if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, true);
 
     try {
       const formData = new FormData();
@@ -40,8 +47,17 @@ export function setupTranscriber() {
 
       const data = await response.json();
       transcriptionBox.value = data.text || '[No transcription returned]';
+      if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } catch (err) {
       transcriptionBox.value = 'Transcription failed: ' + err.message;
+      if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
+    } finally {
+      spinner.setAttribute('hidden', '');
+      spinner.style.display = 'none';
+      transcriptionBox.classList.remove('textarea-loading');
+      transcriptionBox.disabled = false;
+      if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, false);
+      transcribeButton.disabled = false;
     }
   });
 }

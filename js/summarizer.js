@@ -10,6 +10,7 @@ export function setupSummarizer() {
     const content = transcriptionBox.value.trim();
     const examples = getExamples().trim();
     let systemPrompt = getSystemPrompt().trim();
+    const spinner = document.getElementById('summarySpinner');
 
     if (!apiKey) {
       alert('Please enter your OpenAI API key in settings.');
@@ -20,7 +21,13 @@ export function setupSummarizer() {
       return;
     }
 
+    summarizeButton.disabled = true;
     summaryBox.value = 'Summarizing...';
+    spinner.removeAttribute('hidden');
+    spinner.style.display = 'block';
+    summaryBox.classList.add('textarea-loading');
+    summaryBox.disabled = true;
+    if (window.setTextareaLoadingState) window.setTextareaLoadingState(summaryBox, true);
 
     try {
       // Inject examples into system prompt if provided
@@ -51,8 +58,17 @@ export function setupSummarizer() {
 
       const data = await response.json();
       summaryBox.value = data.choices?.[0]?.message?.content || '[No summary returned]';
+      if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } catch (err) {
       summaryBox.value = 'Summarization failed: ' + err.message;
+      if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
+    } finally {
+      spinner.setAttribute('hidden', '');
+      spinner.style.display = 'none';
+      summaryBox.classList.remove('textarea-loading');
+      summaryBox.disabled = false;
+      if (window.setTextareaLoadingState) window.setTextareaLoadingState(summaryBox, false);
+      summarizeButton.disabled = false;
     }
   });
 }

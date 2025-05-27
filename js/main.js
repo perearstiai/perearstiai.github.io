@@ -87,8 +87,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       let blurTimeout = null;
 
+      // Sync copy button disabled state with textarea.disabled
+      function syncCopyBtnDisabled() {
+        btn.disabled = textarea.disabled;
+      }
+      syncCopyBtnDisabled();
+      // Observe disabled attribute
+      const observer = new MutationObserver(syncCopyBtnDisabled);
+      observer.observe(textarea, { attributes: true, attributeFilter: ['disabled'] });
+
       btn.addEventListener('click', async () => {
-        if (!textarea) return;
+        if (!textarea || btn.disabled) return;
         try {
           await navigator.clipboard.writeText(textarea.value);
           btn.classList.add('copied');
@@ -156,7 +165,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // --- Universal Expand Button Logic ---
     function setupUniversalExpandButtons() {
       document.querySelectorAll('textarea').forEach((textarea, idx) => {
-        // Find the wrapper (prefer .copy-textarea-wrapper if present)
+        // Remove any existing expand button in the wrapper
         let wrapper = textarea.closest('.copy-textarea-wrapper') || textarea.closest('.textarea-expand-wrapper');
         if (!wrapper) {
           wrapper = document.createElement('div');
@@ -164,10 +173,10 @@ window.addEventListener('DOMContentLoaded', async () => {
           textarea.parentNode.insertBefore(wrapper, textarea);
           wrapper.appendChild(textarea);
         }
-        // Avoid double expand button
-        if (!wrapper.querySelector('.expand-arrow-btn')) {
-          addExpandBtn(textarea, idx, wrapper);
-        }
+        // Remove old expand button if present
+        const oldBtn = wrapper.querySelector('.expand-arrow-btn');
+        if (oldBtn) oldBtn.remove();
+        addExpandBtn(textarea, idx, wrapper);
       });
     }
 
@@ -206,7 +215,6 @@ window.addEventListener('DOMContentLoaded', async () => {
           tooltip.textContent = getLocaleText('collapse');
           btn.setAttribute('aria-label', getLocaleText('collapse'));
           textarea.style.resize = 'none';
-          // Set height to scrollHeight
           textarea.style.height = textarea.scrollHeight + 2 + 'px';
           textarea.style.maxHeight = window.innerHeight * 1.8 + 'px';
         } else {
@@ -215,22 +223,28 @@ window.addEventListener('DOMContentLoaded', async () => {
           arrow.style.transform = '';
           tooltip.textContent = getLocaleText('expand');
           btn.setAttribute('aria-label', getLocaleText('expand'));
-          textarea.style.resize = 'vertical';
           textarea.style.height = '';
           textarea.style.maxHeight = '';
+          textarea.style.resize = '';
         }
       }
 
       function checkExpandNeeded() {
         textarea.style.height = '';
-        if (textarea.scrollHeight > textarea.clientHeight + 2) {
-          btn.style.display = '';
-        } else {
-          btn.style.display = 'none';
+        // Hide expand button if textarea is disabled/loading
+        if (textarea.disabled) {
+          // If expanded, collapse before hiding
           if (expanded) {
             expanded = false;
             updateUI();
           }
+          btn.style.display = 'none';
+          return;
+        }
+        if (textarea.scrollHeight > textarea.clientHeight + 2) {
+          btn.style.display = '';
+        } else {
+          btn.style.display = 'none';
         }
       }
 
@@ -239,7 +253,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         updateUI();
       });
 
-      // Tooltip i18n update
       onTranslationsUpdated(() => {
         updateUI();
       });
@@ -261,9 +274,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       textarea.addEventListener('input', () => {
         if (expanded) {
-          textarea.style.height = 'auto';
           textarea.style.height = textarea.scrollHeight + 2 + 'px';
-          textarea.style.maxHeight = window.innerHeight * 1.8 + 'px';
         }
         checkExpandNeeded();
       });
@@ -273,7 +284,65 @@ window.addEventListener('DOMContentLoaded', async () => {
       window.addEventListener('resize', checkExpandNeeded);
 
       updateUI();
+
+      // Keep expand/copy button disabled state in sync with textarea.disabled
+      const copyBtn = wrapper.querySelector('.copy-btn');
+      function syncButtonDisabled() {
+        btn.disabled = textarea.disabled;
+        // Hide expand button if textarea is disabled/loading
+        if (textarea.disabled) {
+          // If expanded, collapse before hiding
+          if (expanded) {
+            expanded = false;
+            updateUI();
+          }
+          btn.style.display = 'none';
+        } else {
+          checkExpandNeeded();
+        }
+        if (copyBtn) copyBtn.disabled = textarea.disabled;
+      }
+      syncButtonDisabled();
+      // Observe disabled attribute
+      const observer = new MutationObserver(syncButtonDisabled);
+      observer.observe(textarea, { attributes: true, attributeFilter: ['disabled'] });
     }
+
+    function setTextareaLoadingState(textarea, isLoading) {
+      const wrapper = textarea.closest('.copy-textarea-wrapper') || textarea.closest('.textarea-expand-wrapper');
+      if (!wrapper) return;
+      const copyBtn = wrapper.querySelector('.copy-btn');
+      const expandBtn = wrapper.querySelector('.expand-arrow-btn');
+      if (copyBtn) copyBtn.disabled = isLoading;
+      if (expandBtn) {
+        expandBtn.disabled = isLoading;
+        // Hide expand button immediately if loading/disabled, show if not and needed
+        if (isLoading || textarea.disabled) {
+          // If expanded, collapse before hiding
+          if (textarea.classList.contains('expanded-textarea')) {
+            expandBtn.classList.remove('expanded');
+            textarea.classList.remove('expanded-textarea');
+            expandBtn.setAttribute('aria-label', getLocaleText('expand'));
+            textarea.style.height = '';
+            textarea.style.maxHeight = '';
+            textarea.style.resize = '';
+          }
+          expandBtn.style.display = 'none';
+        } else {
+          // Only show if content is long enough
+          textarea.style.height = '';
+          if (textarea.scrollHeight > textarea.clientHeight + 2) {
+            expandBtn.style.display = '';
+          } else {
+            expandBtn.style.display = 'none';
+          }
+        }
+      }
+    }
+
+    // Patch window for global access from transcriber/summarizer
+    window.setTextareaLoadingState = setTextareaLoadingState;
+    window.setupUniversalExpandButtons = setupUniversalExpandButtons;
 
     setupUniversalExpandButtons();
   });
