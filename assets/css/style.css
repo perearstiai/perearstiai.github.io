@@ -86,7 +86,7 @@ header h1 {
 }
 
 /* =========================
-   Main Content
+   Main Content & Sections
    ========================= */
 main {
   flex: 1 0 auto;
@@ -113,7 +113,9 @@ main {
   margin-right: 1em;
 }
 
-/* Section header with floating help icon */
+/* =========================
+   Section Header & Help Tooltip
+   ========================= */
 .section-header {
   position: relative;
   margin-bottom: 2em;
@@ -125,7 +127,6 @@ main {
   letter-spacing: 0.5px;
   flex: 1 1 auto;
 }
-
 
 .section-help {
   position: absolute;
@@ -242,8 +243,6 @@ button:focus {
   outline: none;
 }
 
-
-
 /* =========================
    Audio
    ========================= */
@@ -261,6 +260,7 @@ audio {
   border: rgb(100, 100, 100) 1px solid;
   border-radius: var(--border-radius);
 }
+
 /* Audio file input styling */
 .audio-file-input-wrapper {
   display: flex;
@@ -432,8 +432,6 @@ dialog#settingsModal {
   margin-top: 0.5em;
 }
 
-
-
 .custom-dropdown {
   position: relative;
   width: 210px;
@@ -526,7 +524,6 @@ dialog#settingsModal {
   background: #748096;
   color: #fff;
 }
-
 
 #settingsForm textarea,
 #settingsForm input[type="password"],
@@ -725,23 +722,40 @@ dialog#attributionsModal a:hover{
   color: #125ea2;
 }
 
+/* =========================
+   Copy & Expand Textarea Wrapper and Textarea Styles
+   ========================= */
+.copy-textarea-wrapper,
+.textarea-expand-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+  margin-bottom: 2.2em;
+}
+
+.copy-textarea-wrapper textarea,
+.textarea-expand-wrapper textarea {
+  width: 100%;
+  padding-right: 3em;
+  box-sizing: border-box;
+  transition: height 0.18s;
+  min-height: 60px;
+  max-height: 40vh;
+  overflow-y: auto;
+  resize: vertical; /* Allow manual resize by default */
+}
+
+.copy-textarea-wrapper textarea.expanded-textarea,
+.textarea-expand-wrapper textarea.expanded-textarea {
+  min-height: 60px;
+  max-height: 180vh;
+  /* height will be set by JS when expanded */
+  resize: none; /* Prevent manual shrinking while auto-expanded */
+}
 
 /* =========================
    Copy button
    ========================= */
-.copy-textarea-wrapper {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: flex-start;
-}
-
-.copy-textarea-wrapper textarea {
-  width: 100%;
-  padding-right: 3em; /* space for the button */
-  box-sizing: border-box;
-}
-
 .copy-btn {
   position: absolute;
   top: 0.7em;
@@ -823,6 +837,76 @@ dialog#attributionsModal a:hover{
   color: #fff;
 }
 
+/* =========================
+   Expand text area button
+   ========================= */
+.expand-arrow-btn {
+  position: absolute;
+  left: 50%;
+  bottom: -1.2em;
+  transform: translateX(-50%);
+  background: #e3f2fd;
+  border: 1.5px solid #1976d2;
+  color: #1976d2;
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.18s, border 0.18s, color 0.18s;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+  outline: none;
+  padding: 0;
+  opacity: 0.85;
+}
+
+.expand-arrow-btn:focus,
+.expand-arrow-btn:hover {
+  background: #1976d2;
+  color: #fff;
+  border-color: #125ea2;
+  opacity: 1;
+}
+
+.expand-arrow {
+  font-size: 1.2em;
+  pointer-events: none;
+  transition: transform 0.18s;
+}
+
+.expand-arrow-btn.expanded .expand-arrow {
+  transform: rotate(180deg);
+}
+
+.expand-tooltip {
+  position: absolute;
+  top: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 0.25em 0.7em;
+  border-radius: 6px;
+  font-size: 0.97em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, top 0.18s, background 0.18s;
+  z-index: 20;
+  margin-left: 0;
+  max-width: 98vw;
+  box-sizing: border-box;
+}
+
+.expand-arrow-btn:hover .expand-tooltip,
+.expand-arrow-btn:focus .expand-tooltip {
+  opacity: 1;
+  top: 120%;
+  left: 50%;
+}
 
 /* =========================
    Responsive Design

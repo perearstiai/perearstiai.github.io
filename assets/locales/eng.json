@@ -43,5 +43,7 @@
     "attributions_icons_title": "Icons",
     "copy": "Copy",
     "copied": "Copied!",
-    "copy_error": "Copy failed"
+    "copy_error": "Copy failed",
+    "expand": "Expand",
+    "collapse": "Collapse"
 }

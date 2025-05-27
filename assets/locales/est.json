@@ -43,5 +43,7 @@
     "attributions_icons_title": "Ikoonid",
     "copy": "Kopeeri",
     "copied": "Kopeeritud!",
-    "copy_error": "Kopeerimine nurjus!"
+    "copy_error": "Kopeerimine nurjus!",
+    "expand": "Laienda",
+    "collapse": "Ahenda"
 }
