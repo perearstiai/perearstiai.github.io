@@ -26,7 +26,7 @@
     "transcription_button": "Transcribe",
     "transcription_placeholder": "Transcribed text will appear here...",
     "summary_heading": "3. Summarize",
-    "summary_tooltip": "Use the transcribed text above or upload a transcribed text file, then click \"Summarize\" to get a summary of the conversation.",
+    "summary_tooltip": "After generating the transcription, click \"Summarize\" to get a summary of the conversation.",
     "summary_transcribed_file": "Transcribed File:",
     "summary_button": "Summarize",
     "summary_placeholder": "Summary will appear here...",
