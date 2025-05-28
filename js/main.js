@@ -5,6 +5,15 @@ import { setupSettingsModal, requireSettings, requireLang, loadAndApplyTranslati
 import { setupFooterLinks } from './footer-links.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
+  // Hide loading overlay only after all setup is done
+  const hideLoadingOverlay = () => {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.classList.add('hidden');
+    setTimeout(() => {
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 400); // allow transition
+  };
+
   await requireLang();
   setupSettingsModal();
   requireSettings().then(() => {
@@ -545,5 +554,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     summarizeButton.addEventListener('mouseleave', hideSummarizeTooltip);
     window.addEventListener('scroll', hideSummarizeTooltip);
     window.addEventListener('blur', hideSummarizeTooltip);
+
+    // At the very end of all setup:
+    hideLoadingOverlay();
   });
 });
