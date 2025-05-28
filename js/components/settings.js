@@ -18,7 +18,9 @@ Format the clinical note in Estonian, following these sections (only include app
  
 Anamnees (Reason for visit, key symptoms, relevant history, smoking/alcohol use) 
 Füüsiline läbivaatus (Findings observed during the visit) 
-Plaan ja soovitused (Treatment, investigations, referrals, verified medications with corrected dosages)`;
+Plaan ja soovitused (Treatment, investigations, referrals, verified medications with corrected dosages)
+
+User can also provide examples of correct clinical notes to help you understand the expected format and content. Examples, if provided, can be seen straight below.`;
 
 export function getSettings() {
   return {
