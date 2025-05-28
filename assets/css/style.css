@@ -579,9 +579,19 @@ dialog#settingsModal {
   color: #fff;
 }
 
+#applySettingsBtn:hover,
+#applySettingsBtn:focus {
+  background: #125ea2;
+}
+
 #closeSettingsBtn {
   background: #eee;
   color: #222;
+}
+
+#closeSettingsBtn:hover,
+#closeSettingsBtn:focus {
+  background: #ccc;
 }
 
 #applySettingsBtn:disabled {

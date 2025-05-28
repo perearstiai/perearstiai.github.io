@@ -208,6 +208,41 @@ export function setupSettingsModal() {
     }
   }
 
+  // --- Custom Dropdown Logic (moved from main.js) ---
+  if (customDropdown && customDropdownOptions && customDropdownSelected) {
+    customDropdown.addEventListener('mousedown', (e) => {
+      if (!e.target.classList.contains('custom-dropdown-option')) {
+        customDropdown.classList.toggle('open');
+      }
+    });
+    customDropdownOptions.addEventListener('mousedown', async (e) => {
+      const option = e.target.closest('.custom-dropdown-option');
+      if (option && customDropdownOptions.contains(option)) {
+        customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+        customDropdownSelected.textContent = option.textContent;
+        const langValue = option.getAttribute('data-value');
+        langHiddenInput.value = langValue;
+        customDropdown.classList.remove('open');
+        saveSettings({ ...getSettings(), lang: langValue });
+        await loadAndApplyTranslations(langValue);
+      }
+    });
+    document.addEventListener('mousedown', (e) => {
+      if (customDropdown.classList.contains('open') && !customDropdown.contains(e.target)) {
+        customDropdown.classList.remove('open');
+      }
+    });
+    customDropdown.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        customDropdown.classList.toggle('open');
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        customDropdown.classList.remove('open');
+      }
+    });
+  }
+
   // Expose for requireSettings
   window._openSettingsModal = openModal;
 }

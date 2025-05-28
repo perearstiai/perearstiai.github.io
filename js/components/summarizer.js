@@ -1,4 +1,4 @@
-import { getOpenAIKey, getSystemPrompt, getExamples, getLocaleText, onTranslationsUpdated } from './settings.js';
+import { getOpenAIKey, getSystemPrompt, getExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
 
 export function setupSummarizer() {
   const summarizeButton = document.getElementById('summarizeButton');

@@ -1,5 +1,5 @@
-import { computeElapsedTime, getFormattedTime } from './utils.js';
-import { getLocaleText, onTranslationsUpdated } from './settings.js';
+import { getLocaleText, onTranslationsUpdated } from '../components/settings.js';
+import { computeElapsedTime, getFormattedTime } from '../helpers/utils.js';
 
 export function setupRecorder() {
   const recordButton = document.getElementById('recordButton');
@@ -223,21 +223,18 @@ export function setupRecorder() {
     updateClearBtnVisibility();
   });
 
-  // Clear file logic
+  // --- File clear button logic (moved from main.js) ---
+  function updateClearRecordedFileBtn() {
+    clearBtn.style.display = recordedFile.files.length > 0 ? '' : 'none';
+  }
+  recordedFile.addEventListener('change', updateClearRecordedFileBtn);
   clearBtn.addEventListener('click', () => {
-    setFileSourceIndicator(null);
-    setFileNameDisplay('');
-    recordedFile.value = "";
-    recordedAudio.pause();
-    recordedAudio.removeAttribute('src');
-    recordedAudio.load();
-    setPlaybackEnabled(false);
-    lastValidFile = null;
-    lastRecordedBlob = null;
-    downloadBtn.style.display = "none";
+    recordedFile.value = '';
+    timer.textContent = '00:00.00';
     recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
-    updateClearBtnVisibility();
   });
+  updateClearBtnVisibility();
+  updateClearRecordedFileBtn();
 
   // Download logic
   downloadBtn.addEventListener('click', () => {

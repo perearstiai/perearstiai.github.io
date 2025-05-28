@@ -1,4 +1,4 @@
-import { getOpenAIKey, getLocaleText, onTranslationsUpdated } from './settings.js';
+import { getOpenAIKey, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
 
 export function setupTranscriber() {
   const transcribeButton = document.getElementById('transcribeButton');
