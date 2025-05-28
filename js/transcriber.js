@@ -41,11 +41,11 @@ export function setupTranscriber() {
     lastInfo = { type: null, fileName: '', errorKey: '', errorMsg: '' };
 
     if (!apiKey) {
-      alert('Please enter your OpenAI API key in settings.');
+      setInfoText(getLocaleText('error_incorrect_api_key') || 'Please enter your OpenAI API key in settings.', true);
       return;
     }
     if (!file) {
-      alert('Please select or record an audio file first.');
+      setInfoText(getLocaleText('transcribe_section_disabled_tooltip') || 'Provide recording first', true);
       return;
     }
 
@@ -106,7 +106,6 @@ export function setupTranscriber() {
       transcriptionBox.classList.remove('textarea-loading');
       transcriptionBox.disabled = false;
       if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, false);
-      transcribeButton.disabled = false;
     }
   });
 }

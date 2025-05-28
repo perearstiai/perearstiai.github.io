@@ -394,6 +394,8 @@ dialog[open]::backdrop {
   justify-content: flex-end;
   gap: 1em;
   margin-top: 1em;
+  align-items: center;
+  position: relative;
 }
 
 dialog .modal-actions button {
@@ -410,6 +412,22 @@ dialog .modal-actions button {
 dialog .modal-actions button:hover,
 dialog .modal-actions button:focus {
   background: #125ea2;
+}
+
+.settings-error-text {
+  color: #c62828;
+  font-weight: 600;
+  font-size: 1em;
+  text-align: left;
+  min-height: 1.2em;
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 60%;
+  white-space: normal;
+  pointer-events: none;
 }
 
 /* =========================
@@ -1022,4 +1040,103 @@ dialog#attributionsModal a:hover{
 .info-error {
   color: #c62828;
   font-weight: 600;
+}
+
+/* =========================
+   Section Disabled State (Section-level disabling)
+   ========================= */
+.section-disabled {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.55;
+  filter: grayscale(0.2) brightness(1.1);
+  background: repeating-linear-gradient(135deg, #e0e0e0 0 8px, #f5f5f5 8px 16px);
+  border-radius: var(--border-radius);
+  transition: opacity 0.2s, filter 0.2s;
+  cursor: not-allowed;
+}
+.section-disabled * {
+  pointer-events: none !important;
+  user-select: none;
+  cursor: not-allowed !important;
+}
+/* Allow help tooltip to remain interactable */
+.section-disabled + .section-header .section-help,
+.section-header .section-help {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Overlay for disabled section (for tooltip target) */
+.section-disabled-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10;
+  background: transparent;
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+}
+
+.section-disabled-tooltip {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  background: #fffbe7;
+  color: #222;
+  border: #b71c1c 1.5px solid;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.13);
+  padding: 0.7em 1.2em;
+  font-size: 1em;
+  min-width: 180px;
+  max-width: 320px;
+  text-align: center;
+  pointer-events: none;
+  font-weight: 600;
+  white-space: pre-line;
+  transition: opacity 0.1s;
+  opacity: 0;
+}
+
+.section-disabled-tooltip.visible {
+  display: block !important;
+  opacity: 1 !important;
+  z-index: 99999;
+}
+
+.section-disabled-btn {
+  opacity: 0.55;
+  filter: grayscale(0.2) brightness(1.1);
+  background: repeating-linear-gradient(135deg, #e0e0e0 0 8px, #f5f5f5 8px 16px);
+  color: #000000;
+  border: #000000 1px solid;
+  border-radius: var(--border-radius);
+  cursor: not-allowed !important;
+  pointer-events: auto !important;
+  position: relative;
+}
+.section-content {
+  position: relative;
+}
+.section-disabled-btn:after {
+  content: '';
+  display: none;
+}
+
+.settings-error-text {
+  color: #c62828;
+  font-weight: 600;
+  font-size: 1em;
+  text-align: left;
+  min-height: 1.2em;
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 60%;
+  white-space: normal;
+  pointer-events: none;
 }

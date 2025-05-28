@@ -142,9 +142,24 @@ export function setupSettingsModal() {
   function validate() {
     const apiKey = apiKeyInput.value.trim();
     const systemPrompt = systemPromptInput.value.trim();
+    const errorText = document.getElementById('settingsErrorText');
+    let showError = false;
+    let errorMsg = '';
+    if (!apiKey || !systemPrompt) {
+      showError = true;
+      errorMsg = getLocaleText('settings_required_error') || 'All required fields must be specified!';
+    }
     applyBtn.disabled = !(apiKey && systemPrompt);
+    if (showError) {
+      errorText.textContent = errorMsg;
+      errorText.style.display = 'block';
+    } else {
+      errorText.textContent = '';
+      errorText.style.display = 'none';
+    }
   }
   settingsForm.addEventListener('input', validate);
+  onTranslationsUpdated(validate);
 
   // Save/apply
   settingsForm.addEventListener('submit', e => {

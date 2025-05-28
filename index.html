@@ -76,18 +76,22 @@
             </span>
           </span>
         </div>
-        <div class="row-group">
-          <button id="transcribeButton" type="button" data-i18n="transcription_button">Transcribe</button>
-          <span id="transcribeInfoText" class="info-text" aria-live="polite"></span>
-        </div>
-        <div class="row-group">
-          <div class="copy-textarea-wrapper">
-            <button type="button" class="copy-btn" id="copyTranscriptionBtn" aria-label="Copy transcription">
-              <img class="copy-icon" id="copyTranscriptionIcon" src="assets/img/copy-icon.svg" alt="" />
-              <span class="copy-tooltip" id="copyTranscriptionTooltip" data-i18n="copy">Copy</span>
-            </button>
-            <div class="spinner" id="transcriptionSpinner" aria-label="Loading" hidden></div>
-            <textarea id="transcriptionBox" rows="4" data-i18n-placeholder="transcription_placeholder" placeholder="Transcribed text will appear here"></textarea>
+        <div class="section-content" id="transcribeSectionContent">
+          <div class="section-disabled-overlay" tabindex="0" style="display:none;"></div>
+          <div class="section-disabled-tooltip" id="transcribeSectionTooltip"></div>
+          <div class="row-group">
+            <button id="transcribeButton" type="button" data-i18n="transcription_button">Transcribe</button>
+            <span id="transcribeInfoText" class="info-text" aria-live="polite"></span>
+          </div>
+          <div class="row-group">
+            <div class="copy-textarea-wrapper">
+              <button type="button" class="copy-btn" id="copyTranscriptionBtn" aria-label="Copy transcription">
+                <img class="copy-icon" id="copyTranscriptionIcon" src="assets/img/copy-icon.svg" alt="" />
+                <span class="copy-tooltip" id="copyTranscriptionTooltip" data-i18n="copy">Copy</span>
+              </button>
+              <div class="spinner" id="transcriptionSpinner" aria-label="Loading" hidden></div>
+              <textarea id="transcriptionBox" rows="6" data-i18n-placeholder="transcription_placeholder" placeholder="Transcribed text will appear here"></textarea>
+            </div>
           </div>
         </div>
       </section>
@@ -104,25 +108,29 @@
             </span>
           </span>
         </div>
-        <!--
-        <div class="row-group">
-          <label for="transcribedFile" data-i18n="summary_transcribed_file">Transcribed File:</label>
-          <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
-          <button type="button" id="clearTranscribedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
-        </div>
-        -->
-        <div class="row-group">
-          <button id="summarizeButton" type="button" data-i18n="summary_button">Summarize</button>
-          <span id="summarizeInfoText" class="info-text" aria-live="polite"></span>
-        </div>
-        <div class="row-group">
-          <div class="copy-textarea-wrapper">
-            <button type="button" class="copy-btn" id="copySummaryBtn" aria-label="Copy summary">
-              <img class="copy-icon" id="copySummaryIcon" src="assets/img/copy-icon.svg" alt="" />
-              <span class="copy-tooltip" id="copySummaryTooltip" data-i18n="copy">Copy</span>
-            </button>
-            <div class="spinner" id="summarySpinner" aria-label="Loading" hidden></div>
-            <textarea id="summaryBox" rows="4" data-i18n-placeholder="summary_placeholder" placeholder="Summary will appear here"></textarea>
+        <div class="section-content" id="summarizeSectionContent">
+          <div class="section-disabled-overlay" tabindex="0" style="display:none;"></div>
+          <div class="section-disabled-tooltip" id="summarizeSectionTooltip"></div>
+          <!--
+          <div class="row-group">
+            <label for="transcribedFile" data-i18n="summary_transcribed_file">Transcribed File:</label>
+            <input type="file" id="transcribedFile" name="transcribedFile" accept=".txt" />
+            <button type="button" id="clearTranscribedFile" class="icon-btn" aria-label="Clear file">&#128465;</button>
+          </div>
+          -->
+          <div class="row-group">
+            <button id="summarizeButton" type="button" data-i18n="summary_button">Summarize</button>
+            <span id="summarizeInfoText" class="info-text" aria-live="polite"></span>
+          </div>
+          <div class="row-group">
+            <div class="copy-textarea-wrapper">
+              <button type="button" class="copy-btn" id="copySummaryBtn" aria-label="Copy summary">
+                <img class="copy-icon" id="copySummaryIcon" src="assets/img/copy-icon.svg" alt="" />
+                <span class="copy-tooltip" id="copySummaryTooltip" data-i18n="copy">Copy</span>
+              </button>
+              <div class="spinner" id="summarySpinner" aria-label="Loading" hidden></div>
+              <textarea id="summaryBox" rows="6" data-i18n-placeholder="summary_placeholder" placeholder="Summary will appear here"></textarea>
+            </div>
           </div>
         </div>
       </section>
@@ -171,7 +179,7 @@
           </button>
         </span>
         <label for="settingsExamples" data-i18n="settings_example_summaries">Example Summaries (optional)</label>
-        <textarea id="settingsExamples" rows="2" data-i18n-placeholder="settings_example_summaries_placeholder" placeholder="Add example summaries here"></textarea>
+        <textarea id="settingsExamples" rows="6" data-i18n-placeholder="settings_example_summaries_placeholder" placeholder="Add example summaries here"></textarea>
         <details>
           <summary data-i18n="settings_advanced">Advanced</summary>
           <span class="label-container">
@@ -181,6 +189,7 @@
           <textarea id="settingsSystemPrompt" rows="8" required></textarea>
         </details>
         <div class="modal-actions">
+          <div id="settingsErrorText" class="settings-error-text" aria-live="polite"></div>
           <button type="submit" id="applySettingsBtn" data-i18n="settings_apply">Apply</button>
           <button type="button" id="closeSettingsBtn" data-i18n="settings_close">Close</button>
         </div>

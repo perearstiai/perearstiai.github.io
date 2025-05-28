@@ -348,5 +348,202 @@ window.addEventListener('DOMContentLoaded', async () => {
     window.setupUniversalExpandButtons = setupUniversalExpandButtons;
 
     setupUniversalExpandButtons();
+
+    // === Section-level disabling logic ===
+    // (re-use recordedFile from above, do not redeclare)
+    const transcribeSectionContent = document.getElementById('transcribeSectionContent');
+    const summarizeSectionContent = document.getElementById('summarizeSectionContent');
+    const transcribeOverlay = transcribeSectionContent.querySelector('.section-disabled-overlay');
+    const transcribeTooltip = document.getElementById('transcribeSectionTooltip');
+    const summarizeOverlay = summarizeSectionContent.querySelector('.section-disabled-overlay');
+    const summarizeTooltip = document.getElementById('summarizeSectionTooltip');
+    // const recordedFile = document.getElementById('recordedFile'); // already declared above
+    const transcriptionBox = document.getElementById('transcriptionBox');
+
+    function updateSectionDisabling() {
+      // Disable only the Transcribe button if no recording, NOT the textarea
+      const hasRecording = recordedFile.files && recordedFile.files.length > 0;
+      const transcribeButton = document.getElementById('transcribeButton');
+      if (!hasRecording) {
+        transcribeButton.disabled = true;
+        transcribeButton.classList.add('section-disabled-btn');
+        transcribeButton.style.cursor = 'not-allowed';
+        transcribeButton.setAttribute('data-tooltip', getLocaleText('transcribe_section_disabled_tooltip'));
+      } else {
+        transcribeButton.disabled = false;
+        transcribeButton.classList.remove('section-disabled-btn');
+        transcribeButton.style.cursor = '';
+        transcribeButton.removeAttribute('data-tooltip');
+      }
+      // Remove overlay/tooltip logic for transcribe section
+      transcribeSectionContent.classList.remove('section-disabled');
+      transcribeOverlay.style.display = 'none';
+      transcribeTooltip.style.display = 'none';
+
+      // Summarize section: only disable the button if transcription is empty
+      const summarizeButton = document.getElementById('summarizeButton');
+      const hasTranscription = transcriptionBox.value && transcriptionBox.value.trim().length > 0;
+      if (!hasTranscription) {
+        summarizeButton.disabled = true;
+        summarizeButton.classList.add('section-disabled-btn');
+        summarizeButton.style.cursor = 'not-allowed';
+        summarizeButton.setAttribute('data-tooltip', getLocaleText('summarize_section_disabled_tooltip'));
+      } else {
+        summarizeButton.disabled = false;
+        summarizeButton.classList.remove('section-disabled-btn');
+        summarizeButton.style.cursor = '';
+        summarizeButton.removeAttribute('data-tooltip');
+      }
+      // Remove overlay/tooltip logic for summarize section
+      summarizeSectionContent.classList.remove('section-disabled');
+      summarizeOverlay.style.display = 'none';
+      summarizeTooltip.style.display = 'none';
+    }
+
+    // --- Tooltip follow cursor logic for disabled overlays ---
+    function setupFollowCursorTooltip(overlay, tooltip) {
+      function showTooltip(e) {
+        tooltip.classList.add('visible');
+        tooltip.style.opacity = '1';
+        tooltip.style.display = 'block';
+        if (e) {
+          const offsetX = 18;
+          const offsetY = 18;
+          tooltip.style.left = (e.clientX + offsetX) + 'px';
+          tooltip.style.top = (e.clientY + offsetY) + 'px';
+        }
+      }
+      function hideTooltip() {
+        tooltip.classList.remove('visible');
+        tooltip.style.opacity = '0';
+        tooltip.style.display = 'none';
+      }
+      overlay.addEventListener('mouseenter', showTooltip);
+      overlay.addEventListener('mousemove', showTooltip);
+      overlay.addEventListener('mouseleave', hideTooltip);
+      overlay.addEventListener('focus', (e) => {
+        showTooltip(e);
+        // Place tooltip near overlay center if no mouse event
+        if (!e || (!e.clientX && !e.clientY)) {
+          const rect = overlay.getBoundingClientRect();
+          tooltip.style.left = (rect.left + rect.width/2) + 'px';
+          tooltip.style.top = (rect.top + 32) + 'px';
+        }
+      });
+      overlay.addEventListener('blur', hideTooltip);
+    }
+    setupFollowCursorTooltip(transcribeOverlay, transcribeTooltip);
+    setupFollowCursorTooltip(summarizeOverlay, summarizeTooltip);
+
+    // Show tooltip on overlay hover/focus
+    transcribeOverlay.addEventListener('mouseenter', () => {
+      transcribeTooltip.style.display = 'block';
+    });
+    transcribeOverlay.addEventListener('mouseleave', () => {
+      transcribeTooltip.style.display = 'none';
+    });
+    transcribeOverlay.addEventListener('focus', () => {
+      transcribeTooltip.style.display = 'block';
+    });
+    transcribeOverlay.addEventListener('blur', () => {
+      transcribeTooltip.style.display = 'none';
+    });
+    summarizeOverlay.addEventListener('mouseenter', () => {
+      summarizeTooltip.style.display = 'block';
+    });
+    summarizeOverlay.addEventListener('mouseleave', () => {
+      summarizeTooltip.style.display = 'none';
+    });
+    summarizeOverlay.addEventListener('focus', () => {
+      summarizeTooltip.style.display = 'block';
+    });
+    summarizeOverlay.addEventListener('blur', () => {
+      summarizeTooltip.style.display = 'none';
+    });
+
+    // Update disabling on file/textarea changes
+    recordedFile.addEventListener('change', updateSectionDisabling);
+    transcriptionBox.addEventListener('input', updateSectionDisabling);
+    // Also update on page load
+    updateSectionDisabling();
+    // Update tooltips on locale change
+    onTranslationsUpdated(updateSectionDisabling);
+
+    // --- Custom tooltip for disabled transcribe button ---
+    let transcribeBtnTooltip = null;
+    transcribeButton.addEventListener('mouseenter', function(e) {
+      if (transcribeButton.disabled && transcribeButton.getAttribute('data-tooltip')) {
+        if (!transcribeBtnTooltip) {
+          transcribeBtnTooltip = document.createElement('div');
+          transcribeBtnTooltip.className = 'section-disabled-tooltip visible';
+          document.body.appendChild(transcribeBtnTooltip);
+        }
+        transcribeBtnTooltip.textContent = transcribeButton.getAttribute('data-tooltip');
+        const offsetX = 2;
+        const offsetY = 16;
+        transcribeBtnTooltip.style.left = (e.clientX + offsetX) + 'px';
+        transcribeBtnTooltip.style.top = (e.clientY + offsetY) + 'px';
+        transcribeBtnTooltip.style.display = 'block';
+      }
+    });
+    transcribeButton.addEventListener('mousemove', function(e) {
+      if (transcribeBtnTooltip && transcribeBtnTooltip.style.display === 'block') {
+        const offsetX = 2;
+        const offsetY = 16;
+        transcribeBtnTooltip.style.left = (e.clientX + offsetX) + 'px';
+        transcribeBtnTooltip.style.top = (e.clientY + offsetY) + 'px';
+      }
+    });
+    function hideTranscribeTooltip() {
+      if (transcribeBtnTooltip) {
+        transcribeBtnTooltip.style.display = 'none';
+        if (transcribeBtnTooltip.parentNode) {
+          transcribeBtnTooltip.parentNode.removeChild(transcribeBtnTooltip);
+        }
+        transcribeBtnTooltip = null;
+      }
+    }
+    transcribeButton.addEventListener('mouseleave', hideTranscribeTooltip);
+    window.addEventListener('scroll', hideTranscribeTooltip);
+    window.addEventListener('blur', hideTranscribeTooltip);
+
+    // --- Custom tooltip for disabled summarize button ---
+    let summarizeBtnTooltip = null;
+    const summarizeButton = document.getElementById('summarizeButton');
+    summarizeButton.addEventListener('mouseenter', function(e) {
+      if (summarizeButton.disabled && summarizeButton.getAttribute('data-tooltip')) {
+        if (!summarizeBtnTooltip) {
+          summarizeBtnTooltip = document.createElement('div');
+          summarizeBtnTooltip.className = 'section-disabled-tooltip visible';
+          document.body.appendChild(summarizeBtnTooltip);
+        }
+        summarizeBtnTooltip.textContent = summarizeButton.getAttribute('data-tooltip');
+        const offsetX = 2;
+        const offsetY = 16;
+        summarizeBtnTooltip.style.left = (e.clientX + offsetX) + 'px';
+        summarizeBtnTooltip.style.top = (e.clientY + offsetY) + 'px';
+        summarizeBtnTooltip.style.display = 'block';
+      }
+    });
+    summarizeButton.addEventListener('mousemove', function(e) {
+      if (summarizeBtnTooltip && summarizeBtnTooltip.style.display === 'block') {
+        const offsetX = 2;
+        const offsetY = 16;
+        summarizeBtnTooltip.style.left = (e.clientX + offsetX) + 'px';
+        summarizeBtnTooltip.style.top = (e.clientY + offsetY) + 'px';
+      }
+    });
+    function hideSummarizeTooltip() {
+      if (summarizeBtnTooltip) {
+        summarizeBtnTooltip.style.display = 'none';
+        if (summarizeBtnTooltip.parentNode) {
+          summarizeBtnTooltip.parentNode.removeChild(summarizeBtnTooltip);
+        }
+        summarizeBtnTooltip = null;
+      }
+    }
+    summarizeButton.addEventListener('mouseleave', hideSummarizeTooltip);
+    window.addEventListener('scroll', hideSummarizeTooltip);
+    window.addEventListener('blur', hideSummarizeTooltip);
   });
 });

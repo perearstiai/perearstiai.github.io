@@ -43,11 +43,11 @@ export function setupSummarizer() {
     lastInfo = { type: null, dateStr: '', errorKey: '', errorMsg: '' };
 
     if (!apiKey) {
-      alert('Please enter your OpenAI API key in settings.');
+      setInfoText(getLocaleText('error_incorrect_api_key') || 'Please enter your OpenAI API key in settings.', true);
       return;
     }
     if (!content) {
-      alert('Please provide text to summarize.');
+      setInfoText(getLocaleText('summarize_section_disabled_tooltip') || 'Provide transcription first', true);
       return;
     }
 
