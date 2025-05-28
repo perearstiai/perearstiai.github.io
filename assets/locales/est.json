@@ -25,11 +25,17 @@
     "transcription_tooltip": "Vestluse tekstiks teisendamiseks vajuta nuppu \"Transkribeeri\". Transkribeeritud tekst ilmub alumisse tekstikasti.",
     "transcription_button": "Transkribeeri",
     "transcription_placeholder": "Siia ilmub transkribeeritud tekst...",
+    "transcribe_success": "Loodud helifaili põhjal:",
+    "transcribe_fail": "Transkribeerimine nurjus!",
+    "transcribing_wait": "Transkribeerin...",
     "summary_heading": "3. Loo kokkuvõte",
     "summary_tooltip": "Peale vestluse transkribeerimist vajuta kokkuvõtte loomiseks nuppu \"Loo kokkuvõte\".",
     "summary_transcribed_file": "Transkribeeritud fail:",
     "summary_button": "Loo kokkuvõte",
     "summary_placeholder": "Siia ilmub kokkuvõte...",
+    "summarize_success": "Loodud transkriptsiooni põhjal",
+    "summarize_fail": "Kokkuvõtte loomine nurjus!",
+    "summarizing_wait": "Loon kokkuvõtet...",
     "footer_about": "Teave",
     "footer_privacy": "Privaatsuspoliitika",
     "footer_attributions": "Viited",
@@ -45,5 +51,9 @@
     "copied": "Kopeeritud!",
     "copy_error": "Kopeerimine nurjus!",
     "expand": "Laienda",
-    "collapse": "Ahenda"
+    "collapse": "Ahenda",
+    "error_incorrect_api_key": "Vigane API võti.",
+    "error_quota_exceeded": "Kasutuslimiit on täis.",
+    "error_rate_limit": "Saadad päringuid liiga kiiresti. Palun oota ja proovi uuesti.",
+    "error_other": "Muu viga."
 }

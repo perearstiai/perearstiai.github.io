@@ -1,14 +1,44 @@
-import { getOpenAIKey } from './settings.js';
+import { getOpenAIKey, getLocaleText, onTranslationsUpdated } from './settings.js';
 
 export function setupTranscriber() {
   const transcribeButton = document.getElementById('transcribeButton');
   const recordedFile = document.getElementById('recordedFile');
   const transcriptionBox = document.getElementById('transcriptionBox');
+  const transcribeInfoText = document.getElementById('transcribeInfoText');
+
+  // Store last info state for i18n updates
+  let lastInfo = { type: null, fileName: '', errorKey: '', errorMsg: '' };
+
+  function setInfoText(msg, isError = false) {
+    transcribeInfoText.textContent = msg;
+    transcribeInfoText.className = 'info-text' + (isError ? ' info-error' : ' info-success');
+  }
+
+  function updateInfoTextI18n() {
+    if (lastInfo.type === 'waiting') {
+      transcriptionBox.value = getLocaleText('transcribing_wait') || 'Transcribing...';
+    } else if (lastInfo.type === 'success' && lastInfo.fileName) {
+      let label = getLocaleText('transcribe_success') || '';
+      if (label && !/[\s:：]$/.test(label)) label += ':';
+      setInfoText(`${label} ${lastInfo.fileName}`, false);
+    } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
+      let label = getLocaleText('transcribe_fail') || '';
+      if (label && !/[\s:：!]$/.test(label)) label += ':';
+      let errorText = getLocaleText(lastInfo.errorKey) || '';
+      if (lastInfo.errorKey === 'error_other') errorText += ' ' + (lastInfo.errorMsg || '');
+      setInfoText(`${label} ${errorText}`, true);
+    }
+  }
+  onTranslationsUpdated(updateInfoTextI18n);
 
   transcribeButton.addEventListener('click', async () => {
     const apiKey = getOpenAIKey().trim();
     const file = recordedFile.files[0];
     const spinner = document.getElementById('transcriptionSpinner');
+
+    transcribeInfoText.textContent = '';
+    transcribeInfoText.className = 'info-text';
+    lastInfo = { type: null, fileName: '', errorKey: '', errorMsg: '' };
 
     if (!apiKey) {
       alert('Please enter your OpenAI API key in settings.');
@@ -20,7 +50,8 @@ export function setupTranscriber() {
     }
 
     transcribeButton.disabled = true;
-    transcriptionBox.value = 'Transcribing...';
+    lastInfo = { type: 'waiting', fileName: '', errorKey: '', errorMsg: '' };
+    transcriptionBox.value = getLocaleText('transcribing_wait') || 'Transcribing...';
     spinner.removeAttribute('hidden');
     spinner.style.display = 'block';
     transcriptionBox.classList.add('textarea-loading');
@@ -47,9 +78,27 @@ export function setupTranscriber() {
 
       const data = await response.json();
       transcriptionBox.value = data.text || '[No transcription returned]';
+      lastInfo = { type: 'success', fileName: file.name, errorKey: '', errorMsg: '' };
+      updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } catch (err) {
-      transcriptionBox.value = 'Transcription failed: ' + err.message;
+      transcriptionBox.value = '';
+      let errorMsg = err.message || '';
+      let errorKey = '';
+      // Locale-compliant error handling
+      if (errorMsg.includes('Incorrect API key provided')) {
+        errorKey = 'error_incorrect_api_key';
+      } else if (errorMsg.toLowerCase().includes('quota') || errorMsg.toLowerCase().includes('billing')) {
+        errorKey = 'error_quota_exceeded';
+      } else if (errorMsg.toLowerCase().includes('rate limit')) {
+        errorKey = 'error_rate_limit';
+      } else {
+        errorKey = 'error_other';
+      }
+      // Always print original error message in console
+      console.error('API error:', err);
+      lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
+      updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
       spinner.setAttribute('hidden', '');

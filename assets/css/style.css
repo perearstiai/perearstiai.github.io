@@ -924,8 +924,8 @@ dialog#attributionsModal a:hover{
   display: none;
   width: 32px;
   height: 32px;
-  border: 4px solid #e3f2fd;
-  border-top: 4px solid #1976d2;
+  border: 4px solid #68a3df;
+  border-top: 4px solid #7e3737;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0.5em auto 0.5em auto;
@@ -1004,4 +1004,22 @@ dialog#attributionsModal a:hover{
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* =========================
+   Info Text Styles
+   ========================= */
+.info-text {
+  margin-left: 1em;
+  font-size: 1em;
+  min-width: 120px;
+  transition: color 0.2s;
+}
+.info-success {
+  color: #2e7d32;
+  font-weight: 600;
+}
+.info-error {
+  color: #c62828;
+  font-weight: 600;
 }

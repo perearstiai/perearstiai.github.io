@@ -25,11 +25,17 @@
     "transcription_tooltip": "Click \"Transcribe\" to convert your audio to text. The transcription will appear in the box below.",
     "transcription_button": "Transcribe",
     "transcription_placeholder": "Transcribed text will appear here...",
+    "transcribe_success": "Generated from audio file:",
+    "transcribe_fail": "Transcription generation failed!",
+    "transcribing_wait": "Transcribing...",
     "summary_heading": "3. Summarize",
     "summary_tooltip": "After generating the transcription, click \"Summarize\" to get a summary of the conversation.",
     "summary_transcribed_file": "Transcribed File:",
     "summary_button": "Summarize",
     "summary_placeholder": "Summary will appear here...",
+    "summarize_success": "Generated from transcription in",
+    "summarize_fail": "Summary generation failed!",
+    "summarizing_wait": "Summarizing...",
     "footer_about": "About",
     "footer_privacy": "Privacy Policy",
     "footer_attributions": "Attributions",
@@ -45,5 +51,9 @@
     "copied": "Copied!",
     "copy_error": "Copy failed",
     "expand": "Expand",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "error_incorrect_api_key": "Incorrect API key provided.",
+    "error_quota_exceeded": "Quota exceeded or billing issue.",
+    "error_rate_limit": "You are sending requests too quickly. Please wait and try again.",
+    "error_other": "Other error."
 }
