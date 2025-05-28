@@ -208,7 +208,7 @@ export function setupSettingsModal() {
     }
   }
 
-  // --- Custom Dropdown Logic (moved from main.js) ---
+  // Custom Dropdown Logic
   if (customDropdown && customDropdownOptions && customDropdownSelected) {
     customDropdown.addEventListener('mousedown', (e) => {
       if (!e.target.classList.contains('custom-dropdown-option')) {

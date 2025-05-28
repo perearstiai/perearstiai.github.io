@@ -223,7 +223,7 @@ export function setupRecorder() {
     updateClearBtnVisibility();
   });
 
-  // --- File clear button logic (moved from main.js) ---
+  // File clear button logic
   function updateClearRecordedFileBtn() {
     clearBtn.style.display = recordedFile.files.length > 0 ? '' : 'none';
   }
