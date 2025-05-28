@@ -52,6 +52,13 @@ label,
   font-weight: bold;
 }
 
+hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1.5rem 0;
+}
+
 /* =========================
    Header
    ========================= */
@@ -85,6 +92,31 @@ header h1 {
   padding: 1.5rem 0;
 }
 
+.settings-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.5em;
+  margin-right: 10px;
+}
+
+.settings-btn:focus {
+  outline: 2px solid #fff;
+}
+
+#settingsIcon {
+  font-size: 3rem;
+  transition: transform 0.25s cubic-bezier(.4,2,.6,1);
+}
+.settings-btn:focus #settingsIcon,
+.settings-btn:hover #settingsIcon {
+  transform: rotate(360deg);
+}
+
 /* =========================
    Main Content & Sections
    ========================= */
@@ -111,6 +143,10 @@ main {
 .main-section {
   margin-left: 1em;
   margin-right: 1em;
+}
+
+.section-content {
+  position: relative;
 }
 
 /* =========================
@@ -225,7 +261,7 @@ button:focus {
 
 /* Icon buttons (clear, download, etc.) */
 .icon-btn {
-  background: none;
+  background: #d4e6f5;
   border: none;
   font-size: 1.5em;
   cursor: pointer;
@@ -233,8 +269,7 @@ button:focus {
   display: flex;
   align-items: center;
   padding: 0 0.2em;
-  transition: color 0.2s;
-  background: #d4e6f5;
+  transition: color 0.2s, background 0.2s;
 }
 
 .icon-btn:hover,
@@ -632,45 +667,7 @@ dialog#settingsModal {
 }
 
 /* =========================
-   Settings Button
-   ========================= */
-.settings-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  margin-left: auto;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 0.5em;
-  margin-right: 10px;
-}
-
-.settings-btn:focus {
-  outline: 2px solid #fff;
-}
-
-#settingsIcon {
-  font-size: 3rem;
-  transition: transform 0.25s cubic-bezier(.4,2,.6,1);
-}
-.settings-btn:focus #settingsIcon,
-.settings-btn:hover #settingsIcon {
-  transform: rotate(360deg);
-}
-
-/* =========================
    Miscellaneous
-   ========================= */
-hr {
-  width: 100%;
-  border: none;
-  border-top: 1px solid #e0e0e0;
-  margin: 1.5rem 0;
-}
-
-/* =========================
-   Footer
    ========================= */
 footer {
   display: flex;
@@ -1170,6 +1167,10 @@ dialog#attributionsModal a:hover{
   background: transparent;
   cursor: not-allowed !important;
   pointer-events: auto !important;
+  display: none;
+}
+.section-disabled-overlay.visible {
+  display: block;
 }
 
 .section-disabled-tooltip {
