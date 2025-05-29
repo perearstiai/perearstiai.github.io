@@ -64,6 +64,8 @@ export function setupUniversalExpandButtons() {
     }
     const oldBtn = wrapper.querySelector('.expand-arrow-btn');
     if (oldBtn) oldBtn.remove();
+    // Always reset expanded state when (re)initializing
+    textarea._expanded = false;
     addExpandBtn(textarea, idx, wrapper);
     textarea.dispatchEvent(new Event('input', { bubbles: true }));
   });

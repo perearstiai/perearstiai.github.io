@@ -39,29 +39,54 @@ export function setupSectionDisabling() {
   transcriptionBox.addEventListener('input', updateSectionDisabling);
   onTranslationsUpdated(updateSectionDisabling);
   updateSectionDisabling();
+  window.addEventListener('recording-injected', updateSectionDisabling);
 
   // Tooltip logic for disabled buttons
-  function setupBtnTooltip(btn, tooltipKey) {
+  function setupBtnTooltip(btn, tooltipKey, opts = {}) {
     let tooltipDiv = null;
     function showTooltip(e) {
       if (btn.disabled && btn.getAttribute('data-tooltip')) {
         if (!tooltipDiv) {
           tooltipDiv = document.createElement('div');
-          tooltipDiv.className = 'section-disabled-tooltip visible';
+          tooltipDiv.className = 'section-disabled-tooltip visible' + (opts.left ? ' left modal-tooltip' : '');
           document.body.appendChild(tooltipDiv);
         }
         tooltipDiv.textContent = btn.getAttribute('data-tooltip');
-        const offsetX = 2, offsetY = 16;
-        tooltipDiv.style.left = (e.clientX + offsetX) + 'px';
-        tooltipDiv.style.top = (e.clientY + offsetY) + 'px';
+        // Positioning logic
+        let left, top;
+        if (opts.left) {
+          // Left of cursor for other left tooltips
+          const offsetX = -2, offsetY = 16;
+          const width = tooltipDiv.offsetWidth || 120;
+          left = e.clientX - width - offsetX;
+          top = e.clientY + offsetY;
+        } else {
+          // Default: right of cursor
+          const offsetX = 2, offsetY = 16;
+          left = e.clientX + offsetX;
+          top = e.clientY + offsetY;
+        }
+        tooltipDiv.style.left = left + 'px';
+        tooltipDiv.style.top = top + 'px';
         tooltipDiv.style.display = 'block';
+        tooltipDiv.style.zIndex = '2147483647';
       }
     }
     function moveTooltip(e) {
       if (tooltipDiv && tooltipDiv.style.display === 'block') {
-        const offsetX = 2, offsetY = 16;
-        tooltipDiv.style.left = (e.clientX + offsetX) + 'px';
-        tooltipDiv.style.top = (e.clientY + offsetY) + 'px';
+        let left, top;
+        if (opts.left) {
+          const offsetX = -2, offsetY = 16;
+          const width = tooltipDiv.offsetWidth || 120;
+          left = e.clientX - width - offsetX;
+          top = e.clientY + offsetY;
+        } else {
+          const offsetX = 2, offsetY = 16;
+          left = e.clientX + offsetX;
+          top = e.clientY + offsetY;
+        }
+        tooltipDiv.style.left = left + 'px';
+        tooltipDiv.style.top = top + 'px';
       }
     }
     function hideTooltip() {

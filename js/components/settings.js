@@ -88,7 +88,7 @@ export function setupSettingsModal() {
   const settingsModal = document.getElementById('settingsModal');
   const settingsForm = document.getElementById('settingsForm');
   const applyBtn = document.getElementById('applySettingsBtn');
-  const closeBtn = document.getElementById('closeSettingsBtn');
+  let closeBtn = document.getElementById('closeSettingsBtn');
   const apiKeyInput = document.getElementById('settingsApiKey');
   const examplesInput = document.getElementById('settingsExamples');
   const systemPromptInput = document.getElementById('settingsSystemPrompt');
@@ -100,6 +100,7 @@ export function setupSettingsModal() {
   const apikeyHide = document.getElementById('settings-apikey-hide');
 
   let originalLang = getLang();
+  let firstOpen = false;
 
   // Eye toggle
   apikeyShow.style.display = '';
@@ -117,28 +118,84 @@ export function setupSettingsModal() {
     apiKeyInput.focus();
   });
 
+  // Remove close button from DOM
+  function removeCloseBtn() {
+    const btn = document.getElementById('closeSettingsBtn');
+    if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+    closeBtn = null;
+  }
+
+  // Restore close button to DOM if missing
+  function ensureCloseBtn() {
+    removeCloseBtn(); // Always remove any existing button first
+    const actions = settingsForm.querySelector('.modal-actions');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'closeSettingsBtn';
+    btn.setAttribute('data-i18n', 'settings_close');
+    btn.textContent = getLocaleText('settings_close');
+    btn.className = '';
+    btn.addEventListener('click', async () => {
+      if (!btn.disabled) settingsModal.close();
+      // If language was changed but not applied, revert UI language
+      if (langHiddenInput.value !== originalLang) {
+        await loadAndApplyTranslations(originalLang); // revert to value at open
+        langHiddenInput.value = originalLang;
+        if (customDropdownOptions && customDropdownSelected) {
+          customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+            if (opt.getAttribute('data-value') === originalLang) {
+              opt.classList.add('selected');
+              customDropdownSelected.textContent = opt.textContent;
+            } else {
+              opt.classList.remove('selected');
+            }
+          });
+        }
+        // Do NOT update originalLang here; it should remain as at open
+      }
+      settingsModal.close();
+    });
+    actions.appendChild(btn);
+    closeBtn = btn;
+  }
+
   // Open modal
   settingsBtn.addEventListener('click', () => openModal(false));
-  closeBtn.addEventListener('click', async () => {
-    if (!closeBtn.disabled) settingsModal.close();
-    // If language was changed but not applied, revert UI language
-    if (langHiddenInput.value !== originalLang) {
-      await loadAndApplyTranslations(originalLang);
-      langHiddenInput.value = originalLang;
-      // Also update custom dropdown UI
-      if (customDropdownOptions && customDropdownSelected) {
-        customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-          if (opt.getAttribute('data-value') === originalLang) {
-            opt.classList.add('selected');
-            customDropdownSelected.textContent = opt.textContent;
-          } else {
-            opt.classList.remove('selected');
-          }
-        });
-      }
+
+  // Modal open logic
+  function openModal(force) {
+    const s = getSettings();
+    apiKeyInput.value = s.apiKey;
+    examplesInput.value = s.examples;
+    systemPromptInput.value = s.systemPrompt || DEFAULT_SYSTEM_PROMPT;
+    // Always sync lang from storage on open
+    const langFromStorage = getLang();
+    langHiddenInput.value = langFromStorage;
+    originalLang = langFromStorage;
+    // Set custom dropdown to current language
+    if (customDropdown && customDropdownOptions && customDropdownSelected) {
+      customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        if (opt.getAttribute('data-value') === langFromStorage) {
+          opt.classList.add('selected');
+          customDropdownSelected.textContent = opt.textContent;
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
     }
-    settingsModal.close();
-  });
+    settingsModal.showModal();
+    validate();
+    if (force) {
+      firstOpen = true;
+      removeCloseBtn();
+    } else {
+      firstOpen = false;
+      ensureCloseBtn();
+    }
+    if (window.setupUniversalExpandButtons) {
+      window.setupUniversalExpandButtons();
+    }
+  }
 
   // Validate
   function validate() {
@@ -173,42 +230,12 @@ export function setupSettingsModal() {
       systemPrompt: systemPromptInput.value.trim(),
       lang: langHiddenInput.value
     });
+    if (firstOpen) {
+      ensureCloseBtn();
+      firstOpen = false;
+    }
     settingsModal.close();
   });
-
-  // Modal open logic
-  function openModal(force) {
-    const s = getSettings();
-    apiKeyInput.value = s.apiKey;
-    examplesInput.value = s.examples;
-    systemPromptInput.value = s.systemPrompt || DEFAULT_SYSTEM_PROMPT;
-    langHiddenInput.value = s.lang || 'est';
-    originalLang = langHiddenInput.value;
-    // Set custom dropdown to current language
-    if (customDropdown && customDropdownOptions && customDropdownSelected) {
-      customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        if (opt.getAttribute('data-value') === langHiddenInput.value) {
-          opt.classList.add('selected');
-          customDropdownSelected.textContent = opt.textContent;
-        } else {
-          opt.classList.remove('selected');
-        }
-      });
-    }
-    settingsModal.showModal();
-    validate();
-    if (force) {
-      closeBtn.disabled = true;
-      closeBtn.style.opacity = 0.5;
-    } else {
-      closeBtn.disabled = false;
-      closeBtn.style.opacity = 1;
-    }
-    // Ensure expand button logic is applied to the system prompt textarea
-    if (window.setupUniversalExpandButtons) {
-      window.setupUniversalExpandButtons();
-    }
-  }
 
   // Custom Dropdown Logic
   if (customDropdown && customDropdownOptions && customDropdownSelected) {
@@ -226,8 +253,7 @@ export function setupSettingsModal() {
         const langValue = option.getAttribute('data-value');
         langHiddenInput.value = langValue;
         customDropdown.classList.remove('open');
-        saveSettings({ ...getSettings(), lang: langValue });
-        await loadAndApplyTranslations(langValue);
+        await loadAndApplyTranslations(langValue); // Immediate feedback, but do NOT save
       }
     });
     document.addEventListener('mousedown', (e) => {

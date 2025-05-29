@@ -18,13 +18,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   await requireLang();
   setupSettingsModal();
+  setupSectionDisabling(); // <-- must be before requireSettings for closeBtn tooltip
+  // Call setupGlobalTextAreaUI immediately after modal is set up, so it works for modal textareas too
+  setupGlobalTextAreaUI();
   requireSettings().then(() => {
     setupRecorder();
     setupTranscriber();
     setupSummarizer();
     setupFooterLinks();
-    setupGlobalTextAreaUI();
-    setupSectionDisabling();
     hideLoadingOverlay();
   });
 });

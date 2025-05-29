@@ -119,7 +119,6 @@ export function setupRecorder() {
   function stopRecording() {
     return new Promise(resolve => {
       if (!mediaRecorder) return resolve();
-
       mediaRecorder.addEventListener('stop', () => {
         stopStream();
 
@@ -152,7 +151,11 @@ export function setupRecorder() {
 
         updateClearBtnVisibility();
 
-        resetRecordingProperties();
+        // After recording is injected into file input, dispatch custom event for section-disabling.js
+        setTimeout(() => {
+          const event = new Event('recording-injected');
+          window.dispatchEvent(event);
+        }, 0);
         resolve();
       }, { once: true });
       mediaRecorder.stop();
