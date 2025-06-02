@@ -59,6 +59,8 @@ export function setupTranscriber() {
     if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, true);
 
     try {
+      // --- OpenAI Whisper-specific code (commented out) ---
+      /*
       const formData = new FormData();
       formData.append('file', file);
       formData.append('model', 'whisper-1');
@@ -81,25 +83,54 @@ export function setupTranscriber() {
       lastInfo = { type: 'success', fileName: file.name, errorKey: '', errorMsg: '' };
       updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
-    } catch (err) {
-      transcriptionBox.value = '';
-      let errorMsg = err.message || '';
-      let errorKey = '';
-      // Locale-compliant error handling
-      if (errorMsg.includes('Incorrect API key provided')) {
-        errorKey = 'error_incorrect_api_key';
-      } else if (errorMsg.toLowerCase().includes('quota') || errorMsg.toLowerCase().includes('billing')) {
-        errorKey = 'error_quota_exceeded';
-      } else if (errorMsg.toLowerCase().includes('rate limit')) {
-        errorKey = 'error_rate_limit';
-      } else {
-        errorKey = 'error_other';
+      */
+
+      // --- Bark.cs.taltech.ee API implementation ---
+      try {
+        // Try sending the file as a FormData upload (like Whisper)
+        const formData = new FormData();
+        formData.append('file', file);
+        // Try both 'file' and 'path' keys if needed
+        // formData.append('path', file); // Uncomment if 'file' fails
+        const barkResponse = await fetch('https://bark.cs.taltech.ee/subtitreeri/gradio_api/call/predict', {
+          method: 'POST',
+          body: formData
+        });
+        let barkJson;
+        try {
+          barkJson = await barkResponse.json();
+        } catch (e) {
+          throw new Error('API did not return JSON.');
+        }
+        const eventId = barkJson.data?.[0];
+        if (!eventId) throw new Error('No event ID returned from API. Response: ' + JSON.stringify(barkJson));
+        // Poll for the result
+        const resultResponse = await fetch(`https://bark.cs.taltech.ee/subtitreeri/gradio_api/call/predict/${eventId}`);
+        const resultText = await resultResponse.text();
+        transcriptionBox.value = resultText || '[No transcription returned]';
+        lastInfo = { type: 'success', fileName: file.name, errorKey: '', errorMsg: '' };
+        updateInfoTextI18n();
+        if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
+      } catch (err) {
+        transcriptionBox.value = '';
+        let errorMsg = err.message || '';
+        let errorKey = '';
+        // Locale-compliant error handling
+        if (errorMsg.includes('Incorrect API key provided')) {
+          errorKey = 'error_incorrect_api_key';
+        } else if (errorMsg.toLowerCase().includes('quota') || errorMsg.toLowerCase().includes('billing')) {
+          errorKey = 'error_quota_exceeded';
+        } else if (errorMsg.toLowerCase().includes('rate limit')) {
+          errorKey = 'error_rate_limit';
+        } else {
+          errorKey = 'error_other';
+        }
+        // Always print original error message in console
+        console.error('API error:', err);
+        lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
+        updateInfoTextI18n();
+        if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
       }
-      // Always print original error message in console
-      console.error('API error:', err);
-      lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
-      updateInfoTextI18n();
-      if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
       spinner.setAttribute('hidden', '');
       spinner.style.display = 'none';
