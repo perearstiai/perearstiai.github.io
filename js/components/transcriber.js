@@ -89,7 +89,7 @@ export function setupTranscriber() {
       try {
         // Try sending the file as a FormData upload (like Whisper)
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file_path', new Blob([file], { type: file.type }));
         // Try both 'file' and 'path' keys if needed
         // formData.append('path', file); // Uncomment if 'file' fails
         const barkResponse = await fetch('https://bark.cs.taltech.ee/subtitreeri/gradio_api/call/predict', {
