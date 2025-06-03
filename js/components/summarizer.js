@@ -1,13 +1,19 @@
-import { getOpenAIKey, getSystemPrompt, getExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
 
 export function setupSummarizer() {
   const summarizeButton = document.getElementById('summarizeButton');
   const transcriptionBox = document.getElementById('transcriptionBox');
   const summaryBox = document.getElementById('summaryBox');
   const summarizeInfoText = document.getElementById('summarizeInfoText');
+  const summaryTimer = document.getElementById('summaryTimer');
+  const spinner = document.getElementById('summarySpinner');
 
   // Store last info state for i18n updates
   let lastInfo = { type: null, dateStr: '', errorKey: '', errorMsg: '' };
+  let timerInterval = null;
+  let timerStart = null;
+  let abortController = null;
+  let isSummarizing = false;
 
   function setInfoText(msg, isError = false) {
     summarizeInfoText.textContent = msg;
@@ -31,12 +37,39 @@ export function setupSummarizer() {
   }
   onTranslationsUpdated(updateInfoTextI18n);
 
+  function startSummaryTimer() {
+    timerStart = Date.now();
+    summaryTimer.style.display = 'block';
+    summaryTimer.textContent = '0.0s';
+    timerInterval = setInterval(() => {
+      const elapsed = (Date.now() - timerStart) / 1000;
+      summaryTimer.textContent = elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function stopSummaryTimer() {
+    summaryTimer.style.display = 'none';
+    summaryTimer.textContent = '';
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
   summarizeButton.addEventListener('click', async () => {
+    if (isSummarizing) {
+      if (abortController) abortController.abort();
+      summarizeButton.disabled = true;
+      summaryBox.value = getLocaleText('cancelling') || 'Cancelling...';
+      // Reset timer to 0.0s and keep visible, and reset timerStart
+      summaryTimer.style.display = 'block';
+      summaryTimer.textContent = '0.0s';
+      timerStart = Date.now();
+      // Do not show info text yet; will show after process is actually cancelled in catch/finally
+      return;
+    }
+
     const apiKey = getOpenAIKey().trim();
     const content = transcriptionBox.value.trim();
-    const examples = getExamples().trim();
+    const examples = getWrappedExamples().trim();
     let systemPrompt = getSystemPrompt().trim();
-    const spinner = document.getElementById('summarySpinner');
 
     summarizeInfoText.textContent = '';
     summarizeInfoText.className = 'info-text';
@@ -51,7 +84,12 @@ export function setupSummarizer() {
       return;
     }
 
-    summarizeButton.disabled = true;
+    isSummarizing = true;
+    abortController = new AbortController();
+    summarizeButton.textContent = getLocaleText('stop') || 'Stop';
+    summarizeButton.classList.add('danger');
+    summarizeButton.disabled = false;
+
     lastInfo = { type: 'waiting', dateStr: '', errorKey: '', errorMsg: '' };
     summaryBox.value = getLocaleText('summarizing_wait') || 'Summarizing...';
     spinner.removeAttribute('hidden');
@@ -59,12 +97,12 @@ export function setupSummarizer() {
     summaryBox.classList.add('textarea-loading');
     summaryBox.disabled = true;
     if (window.setTextareaLoadingState) window.setTextareaLoadingState(summaryBox, true);
+    startSummaryTimer();
 
     try {
-      // Inject examples into system prompt if provided
-      if (examples) {
-        systemPrompt += `\n\nHere are some examples for context:\n${examples}`;
-      }
+      systemPrompt += examples;
+      // Debug: log the prompt sent to GPT-4.1
+      // console.log('[DEBUG] GPT-4.1 prompt:/n', systemPrompt);
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -73,13 +111,14 @@ export function setupSummarizer() {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-4-1106-preview",
+          model: "gpt-4.1",
           temperature: 0,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: content }
           ]
-        })
+        }),
+        signal: abortController.signal
       });
 
       if (!response.ok) {
@@ -100,28 +139,58 @@ export function setupSummarizer() {
       summaryBox.value = '';
       let errorMsg = err.message || '';
       let errorKey = '';
-      // Locale-compliant error handling
-      if (errorMsg.includes('Incorrect API key provided')) {
-        errorKey = 'error_incorrect_api_key';
-      } else if (errorMsg.toLowerCase().includes('quota') || errorMsg.toLowerCase().includes('billing')) {
-        errorKey = 'error_quota_exceeded';
-      } else if (errorMsg.toLowerCase().includes('rate limit')) {
-        errorKey = 'error_rate_limit';
+      if (errorMsg === 'interrupted' || err.name === 'AbortError') {
+        setInfoText(getLocaleText('interrupted') || 'Interrupted.', true); // Show info text only after cancellation is complete
       } else {
-        errorKey = 'error_other';
-        // Print original error for debugging
-        console.error('API error:', err);
+        // Locale-compliant error handling
+        if (errorMsg.includes('Incorrect API key provided')) {
+          errorKey = 'error_incorrect_api_key';
+        } else if (errorMsg.toLowerCase().includes('quota') || errorMsg.toLowerCase().includes('billing')) {
+          errorKey = 'error_quota_exceeded';
+        } else if (errorMsg.toLowerCase().includes('rate limit')) {
+          errorKey = 'error_rate_limit';
+        } else {
+          errorKey = 'error_other';
+          // Print original error for debugging
+          console.error('API error:', err);
+        }
+        lastInfo = { type: 'fail', dateStr: '', errorKey, errorMsg };
+        updateInfoTextI18n();
       }
-      lastInfo = { type: 'fail', dateStr: '', errorKey, errorMsg };
-      updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
+      isSummarizing = false;
+      abortController = null;
+      // Timer already stopped on cancel, but also stop here for normal completion
+      stopSummaryTimer();
       spinner.setAttribute('hidden', '');
       spinner.style.display = 'none';
       summaryBox.classList.remove('textarea-loading');
       summaryBox.disabled = false;
       if (window.setTextareaLoadingState) window.setTextareaLoadingState(summaryBox, false);
+      summarizeButton.textContent = getLocaleText('summary_button') || 'Summarize';
+      summarizeButton.classList.remove('danger');
       summarizeButton.disabled = false;
     }
   });
+
+  // Add locale-compatible model/version label above summary textarea
+  if (summaryBox) {
+    let modelLabel = document.getElementById('summaryModelLabel');
+    if (!modelLabel) {
+      modelLabel = document.createElement('div');
+      modelLabel.id = 'summaryModelLabel';
+      modelLabel.className = 'textarea-model-label';
+      // Insert as first child of wrapper (before copy/expand buttons)
+      const wrapper = summaryBox.closest('.copy-textarea-wrapper, .textarea-expand-wrapper');
+      if (wrapper) wrapper.insertBefore(modelLabel, wrapper.firstChild);
+      else summaryBox.parentElement.insertBefore(modelLabel, summaryBox);
+    }
+    function updateModelLabel() {
+      const modelName = getLocaleText('settings_summarize_model_openai') || 'OpenAI GPT-4.1';
+      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} ${modelName}`;
+    }
+    updateModelLabel();
+    onTranslationsUpdated(updateModelLabel);
+  }
 }

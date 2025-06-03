@@ -70,7 +70,7 @@ export function setupRecorder() {
   recordedFile.value = "";
   recordButton.textContent = getLocaleText("recording_start_button");
   downloadBtn.style.display = "none";
-  timer.textContent = "00:00.00"; // Reset timer display
+  timer.textContent = "00:00:00.00"; // Reset timer display to always show hours
   setFileNameDisplay(null);
   setFileSourceIndicator(null);
 
@@ -168,11 +168,6 @@ export function setupRecorder() {
     }
   }
 
-  function resetRecordingProperties() {
-    mediaRecorder = null;
-    streamBeingCaptured = null;
-  }
-
   recordButton.addEventListener('click', async () => {
     if (!isRecording) {
       await startRecording();
@@ -222,7 +217,7 @@ export function setupRecorder() {
     lastValidFile = file;
     lastRecordedBlob = null;
     downloadBtn.style.display = "none";
-    timer.textContent = "00:00.00"; // Reset timer display
+    timer.textContent = "00:00:00.00"; // Reset timer display to always show hours
     updateClearBtnVisibility();
   });
 
@@ -233,7 +228,7 @@ export function setupRecorder() {
   recordedFile.addEventListener('change', updateClearRecordedFileBtn);
   clearBtn.addEventListener('click', () => {
     recordedFile.value = '';
-    timer.textContent = '00:00.00';
+    timer.textContent = '00:00:00.00'; // Reset timer display to always show hours
     recordedFile.dispatchEvent(new Event('change', { bubbles: true }));
   });
   updateClearBtnVisibility();

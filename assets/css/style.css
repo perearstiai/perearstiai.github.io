@@ -109,12 +109,15 @@ header h1 {
 }
 
 #settingsIcon {
-  font-size: 3rem;
+  width: 4rem;
+  height: 4rem;
+  font-size: 4rem;
   transition: transform 0.25s cubic-bezier(.4,2,.6,1);
+  display: inline-block;
 }
 .settings-btn:focus #settingsIcon,
 .settings-btn:hover #settingsIcon {
-  transform: rotate(360deg);
+  transform: rotate(90deg);
 }
 
 /* =========================
@@ -259,6 +262,16 @@ button:focus {
   background: #125ea2;
 }
 
+/* Danger button style for red cancel button */
+button.danger {
+  background: #c62828 !important;
+  color: #fff !important;
+}
+button.danger:hover,
+button.danger:focus {
+  background: #b71c1c !important;
+}
+
 /* Icon buttons (clear, download, etc.) */
 .icon-btn {
   background: #d4e6f5;
@@ -276,6 +289,13 @@ button:focus {
 .icon-btn:focus {
   background: #b71c1c;
   outline: none;
+}
+
+.icon-svg {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 /* =========================
@@ -375,6 +395,11 @@ audio {
   font-weight: 500;
   font-size: 1em;
   color: black;
+}
+#recordedFileActions{
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
 .audio-file-input-wrapper .icon-btn {
@@ -506,6 +531,9 @@ dialog#settingsModal {
   align-items: center;
   justify-content: space-between;
   min-height: 38px;
+}
+#customModelDropdown {
+  width: 350px;
 }
 
 .custom-dropdown:focus,
@@ -784,7 +812,7 @@ dialog#attributionsModal a:hover{
    ========================= */
 .copy-btn {
   position: absolute;
-  top: 0.7em;
+  top: 2em;
   right: 0.7em;
   background: #e3f2fd;
   border: 1.5px solid #1976d2;
@@ -1041,7 +1069,7 @@ dialog#attributionsModal a:hover{
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   main {
     padding: 1rem 0.5rem;
   }
@@ -1063,6 +1091,7 @@ dialog#attributionsModal a:hover{
     width: 48px;
     height: 48px;
   }
+  .icon
   h1 {
     font-size: 1.1rem;
   }
@@ -1090,9 +1119,20 @@ dialog#attributionsModal a:hover{
   #selectedFileText {
     align-self: center;
   }
+  #settingsIcon {
+    width: 3rem;
+    height: 3rem;
+    font-size: 3rem;
+  }
   #recordedFileInfo {
     margin: 5px;
     width: 97%;
+  }
+  #recordedFileName {
+    max-width: 100%;
+  }
+  #customModelDropdown {
+    width: 250px;
   }
   .audio-file-input-wrapper .icon-btn {
     margin-left: 0;
@@ -1218,4 +1258,30 @@ dialog#attributionsModal a:hover{
 .section-disabled-btn:after {
   content: '';
   display: none;
+}
+
+.textarea-timer {
+  position: absolute;
+  left: 0.8em;
+  bottom: 0.5em;
+  font-size: 0.95em;
+  color: #888;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 3;
+  font-family: monospace;
+}
+
+.textarea-model-label {
+  display: block;
+  font-size: 0.85em;
+  color: #888;
+  opacity: 0.8;
+  font-family: monospace, monospace;
+  margin-bottom: 0.2em;
+  margin-left: 2px;
+  margin-top: 0.1em;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+  pointer-events: none;
 }

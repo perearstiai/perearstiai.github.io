@@ -1,4 +1,4 @@
-// Compute elapsed time since startTime (Date object), returns "mm:ss" or "hh:mm:ss"
+// Compute elapsed time since startTime (Date object), always returns "hh:mm:ss.cc" (hours always visible)
 export function computeElapsedTime(startTime) {
   const endTime = new Date();
   let timeDiffMs = endTime - startTime;
@@ -11,9 +11,8 @@ export function computeElapsedTime(startTime) {
   timeDiff = Math.floor(timeDiff / 60);
   const hours = String(timeDiff).padStart(2, '0');
 
-  return hours === "00"
-    ? `${minutes}:${seconds}.${hundredths}`
-    : `${hours}:${minutes}:${seconds}.${hundredths}`;  
+  // Always show hours visually (hh:mm:ss.cc)
+  return `${hours}:${minutes}:${seconds}.${hundredths}`;
 }
 
 // Get formatted time string for filenames: "yymmdd_hhmmss"
