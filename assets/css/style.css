@@ -109,12 +109,15 @@ header h1 {
 }
 
 #settingsIcon {
-  font-size: 3rem;
+  width: 4rem;
+  height: 4rem;
+  font-size: 4rem;
   transition: transform 0.25s cubic-bezier(.4,2,.6,1);
+  display: inline-block;
 }
 .settings-btn:focus #settingsIcon,
 .settings-btn:hover #settingsIcon {
-  transform: rotate(360deg);
+  transform: rotate(90deg);
 }
 
 /* =========================
@@ -1105,6 +1108,11 @@ dialog#attributionsModal a:hover{
   }
   #selectedFileText {
     align-self: center;
+  }
+  #settingsIcon {
+    width: 3rem;
+    height: 3rem;
+    font-size: 3rem;
   }
   #recordedFileInfo {
     margin: 5px;

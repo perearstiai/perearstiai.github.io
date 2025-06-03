@@ -60,7 +60,7 @@
     "error_other": "Muu viga.",
     "settings_required_error": "Kõik kohustuslikud väljad peavad olema täidetud!",
     "settings_transcribe_model": "Transkribeerimise mudel",
-    "settings_transcribe_model_taltech": "TalTech Subtitreeri",
+    "settings_transcribe_model_taltech": "TalTech Whisper",
     "settings_transcribe_model_openai": "OpenAI Whisper v1",
     "model_label": "Mudel:"
 }
