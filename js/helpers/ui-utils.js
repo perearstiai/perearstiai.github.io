@@ -64,8 +64,8 @@ export function setupUniversalExpandButtons() {
     }
     const oldBtn = wrapper.querySelector('.expand-arrow-btn');
     if (oldBtn) oldBtn.remove();
-    // Always reset expanded state when (re)initializing
-    textarea._expanded = false;
+    // Only set _expanded to false if not already set (preserve expand state)
+    if (typeof textarea._expanded === 'undefined') textarea._expanded = false;
     addExpandBtn(textarea, idx, wrapper);
     textarea.dispatchEvent(new Event('input', { bubbles: true }));
   });
@@ -100,26 +100,28 @@ function addExpandBtn(textarea, idx, wrapper) {
       tooltip.textContent = getLocaleText('collapse');
       btn.setAttribute('aria-label', getLocaleText('collapse'));
       textarea.style.resize = 'none';
+      // Always set height to scrollHeight when expanded
       textarea.style.height = textarea.scrollHeight + 2 + 'px';
       textarea.style.maxHeight = window.innerHeight * 1.8 + 'px';
     } else {
       btn.classList.remove('expanded');
       textarea.classList.remove('expanded-textarea');
-      arrow.style.transform = '';
-      tooltip.textContent = getLocaleText('expand');
-      btn.setAttribute('aria-label', getLocaleText('expand'));
       textarea.style.height = '';
       textarea.style.maxHeight = '';
       textarea.style.resize = '';
+      arrow.style.transform = 'rotate(0deg)'; // Reset arrow rotation when collapsed
     }
   }
   function checkExpandNeeded() {
+    // Only show/hide expand button if not expanded
+    if (textarea._expanded) {
+      // When expanded, always keep expanded, just update height
+      textarea.style.height = textarea.scrollHeight + 2 + 'px';
+      btn.style.display = '';
+      return;
+    }
     textarea.style.height = '';
     if (textarea.disabled) {
-      if (textarea._expanded) {
-        textarea._expanded = false;
-        updateUI();
-      }
       btn.style.display = 'none';
       return;
     }
@@ -145,8 +147,12 @@ function addExpandBtn(textarea, idx, wrapper) {
   btn.addEventListener('mouseleave', () => { tooltip.style.opacity = 0; });
   btn.addEventListener('blur', () => { tooltip.style.opacity = 0; });
   textarea.addEventListener('input', () => {
-    if (textarea._expanded) textarea.style.height = textarea.scrollHeight + 2 + 'px';
-    checkExpandNeeded();
+    if (textarea._expanded) {
+      // When expanded, always keep height in sync with content
+      textarea.style.height = textarea.scrollHeight + 2 + 'px';
+    } else {
+      checkExpandNeeded();
+    }
   });
   checkExpandNeeded();
   window.addEventListener('resize', checkExpandNeeded);

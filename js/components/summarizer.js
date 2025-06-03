@@ -1,13 +1,17 @@
-import { getOpenAIKey, getSystemPrompt, getExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
 
 export function setupSummarizer() {
   const summarizeButton = document.getElementById('summarizeButton');
   const transcriptionBox = document.getElementById('transcriptionBox');
   const summaryBox = document.getElementById('summaryBox');
   const summarizeInfoText = document.getElementById('summarizeInfoText');
+  const summaryTimer = document.getElementById('summaryTimer');
+  const spinner = document.getElementById('summarySpinner');
 
   // Store last info state for i18n updates
   let lastInfo = { type: null, dateStr: '', errorKey: '', errorMsg: '' };
+  let timerInterval = null;
+  let timerStart = null;
 
   function setInfoText(msg, isError = false) {
     summarizeInfoText.textContent = msg;
@@ -31,12 +35,27 @@ export function setupSummarizer() {
   }
   onTranslationsUpdated(updateInfoTextI18n);
 
+  function startSummaryTimer() {
+    timerStart = Date.now();
+    summaryTimer.style.display = 'block';
+    summaryTimer.textContent = '0.0s';
+    timerInterval = setInterval(() => {
+      const elapsed = (Date.now() - timerStart) / 1000;
+      summaryTimer.textContent = elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function stopSummaryTimer() {
+    summaryTimer.style.display = 'none';
+    summaryTimer.textContent = '';
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
   summarizeButton.addEventListener('click', async () => {
     const apiKey = getOpenAIKey().trim();
     const content = transcriptionBox.value.trim();
-    const examples = getExamples().trim();
+    const examples = getWrappedExamples().trim();
     let systemPrompt = getSystemPrompt().trim();
-    const spinner = document.getElementById('summarySpinner');
 
     summarizeInfoText.textContent = '';
     summarizeInfoText.className = 'info-text';
@@ -59,12 +78,16 @@ export function setupSummarizer() {
     summaryBox.classList.add('textarea-loading');
     summaryBox.disabled = true;
     if (window.setTextareaLoadingState) window.setTextareaLoadingState(summaryBox, true);
+    startSummaryTimer();
 
     try {
       // Inject examples into system prompt if provided
-      if (examples) {
-        systemPrompt += `\n\nHere are some examples for context:\n${examples}`;
-      }
+      //if (examples) {
+      systemPrompt += examples;
+      //}
+
+      // Debug: log the prompt sent to GPT-4.1
+      console.log('[DEBUG] GPT-4.1 prompt:', systemPrompt);
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -73,7 +96,7 @@ export function setupSummarizer() {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-4-1106-preview",
+          model: "gpt-4.1",
           temperature: 0,
           messages: [
             { role: "system", content: systemPrompt },
@@ -116,6 +139,7 @@ export function setupSummarizer() {
       updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
+      stopSummaryTimer();
       spinner.setAttribute('hidden', '');
       spinner.style.display = 'none';
       summaryBox.classList.remove('textarea-loading');
@@ -124,4 +148,23 @@ export function setupSummarizer() {
       summarizeButton.disabled = false;
     }
   });
+
+  // Add locale-compatible model/version label above summary textarea
+  if (summaryBox) {
+    let modelLabel = document.getElementById('summaryModelLabel');
+    if (!modelLabel) {
+      modelLabel = document.createElement('div');
+      modelLabel.id = 'summaryModelLabel';
+      modelLabel.className = 'textarea-model-label';
+      // Insert as first child of wrapper (before copy/expand buttons)
+      const wrapper = summaryBox.closest('.copy-textarea-wrapper, .textarea-expand-wrapper');
+      if (wrapper) wrapper.insertBefore(modelLabel, wrapper.firstChild);
+      else summaryBox.parentElement.insertBefore(modelLabel, summaryBox);
+    }
+    function updateModelLabel() {
+      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} OpenAI GPT-4.1`;
+    }
+    updateModelLabel();
+    onTranslationsUpdated(updateModelLabel);
+  }
 }

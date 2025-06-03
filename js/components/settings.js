@@ -2,11 +2,14 @@ const SETTINGS_KEYS = {
   apiKey: 'openai_api_key',
   examples: 'openai_examples',
   systemPrompt: 'openai_system_prompt',
-  lang: 'lang'
+  lang: 'lang',
+  transcribeModel: 'transcribe_model'
 };
+
+export const DEFAULT_TRANSCRIBE_MODEL = 'taltech'; // Default transcription model
 const DEFAULT_SYSTEM_PROMPT = `You are a medical transcriber specializing in structured clinical notes. 
  
-I will provide a Whisper-generated transcription of a doctor-patient encounter. Since Whisper may misinterpret medical terms, medications, and dosages, your task is to: 
+I will provide an AI-generated transcription of a doctor-patient encounter. Since AI may misinterpret medical terms, medications, and dosages, your task is to: 
  
 Correct obvious transcription errors for clinical accuracy. 
 Adjust misrecognized medical terms based on context. 
@@ -20,21 +23,28 @@ Anamnees (Reason for visit, key symptoms, relevant history, smoking/alcohol use)
 Füüsiline läbivaatus (Findings observed during the visit) 
 Plaan ja soovitused (Treatment, investigations, referrals, verified medications with corrected dosages)
 
-User can also provide examples of correct clinical notes to help you understand the expected format and content. Examples, if provided, can be seen straight below.`;
+User can also provide examples of correct clinical notes to help you understand the expected format and content. Examples, if provided, can be seen below.\n`;
 
 export function getSettings() {
+  // Remove [Examples begin] and [Examples end] from the examples field for UI
+  let wrappedExamples = localStorage.getItem(SETTINGS_KEYS.examples) || '';
+  let examples = wrappedExamples.replace(/^\[Examples begin\]\n?/m, '').replace(/\n?\[Examples end\]$/m, '');
   return {
     apiKey: localStorage.getItem(SETTINGS_KEYS.apiKey) || '',
-    examples: localStorage.getItem(SETTINGS_KEYS.examples) || '',
+    examples: examples,
+    wrappedExamples: wrappedExamples,
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
-    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est'
+    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est',
+    transcribeModel: localStorage.getItem(SETTINGS_KEYS.transcribeModel) || DEFAULT_TRANSCRIBE_MODEL
   };
 }
-export function saveSettings({ apiKey, examples, systemPrompt, lang }) {
+export function saveSettings({ apiKey, examples, systemPrompt, lang, transcribeModel }) {
   localStorage.setItem(SETTINGS_KEYS.apiKey, apiKey);
-  localStorage.setItem(SETTINGS_KEYS.examples, examples || '');
+  const wrappedExamples = `[Examples begin]\n${examples ? examples.trim() : ''}\n[Examples end]`;
+  localStorage.setItem(SETTINGS_KEYS.examples, wrappedExamples);
   localStorage.setItem(SETTINGS_KEYS.systemPrompt, systemPrompt);
   if (lang) localStorage.setItem(SETTINGS_KEYS.lang, lang);
+  if (transcribeModel) localStorage.setItem(SETTINGS_KEYS.transcribeModel, transcribeModel);
 }
 export function getOpenAIKey() {
   return getSettings().apiKey;
@@ -42,11 +52,20 @@ export function getOpenAIKey() {
 export function getExamples() {
   return getSettings().examples;
 }
+export function getWrappedExamples() {
+  return getSettings().wrappedExamples;
+}
 export function getSystemPrompt() {
   return getSettings().systemPrompt;
 }
 export function getLang() {
   return getSettings().lang;
+}
+export function getTranscribeModel() {
+  return getSettings().transcribeModel;
+}
+export function setTranscribeModel(model) {
+  localStorage.setItem(SETTINGS_KEYS.transcribeModel, model);
 }
 export async function requireLang() {
   let lang = localStorage.getItem(SETTINGS_KEYS.lang);
@@ -98,6 +117,12 @@ export function setupSettingsModal() {
   const customDropdownSelected = document.getElementById('customLangSelected');
   const apikeyShow = document.getElementById('settings-apikey-show');
   const apikeyHide = document.getElementById('settings-apikey-hide');
+
+  // --- Transcription Model Dropdown Logic ---
+  const modelDropdown = document.getElementById('customModelDropdown');
+  const modelDropdownOptions = document.getElementById('customModelOptions');
+  const modelDropdownSelected = document.getElementById('customModelSelected');
+  const modelHiddenInput = document.getElementById('settingsTranscribeModel');
 
   let originalLang = getLang();
   let firstOpen = false;
@@ -183,6 +208,18 @@ export function setupSettingsModal() {
         }
       });
     }
+    // --- Transcription Model Dropdown Logic ---
+    if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
+      modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+        if (opt.getAttribute('data-value') === s.transcribeModel) {
+          opt.classList.add('selected');
+          modelDropdownSelected.textContent = opt.textContent;
+          modelHiddenInput.value = s.transcribeModel;
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
+    }
     settingsModal.showModal();
     validate();
     if (force) {
@@ -228,7 +265,8 @@ export function setupSettingsModal() {
       apiKey: apiKeyInput.value.trim(),
       examples: examplesInput.value.trim(),
       systemPrompt: systemPromptInput.value.trim(),
-      lang: langHiddenInput.value
+      lang: langHiddenInput.value,
+      transcribeModel: modelHiddenInput.value
     });
     if (firstOpen) {
       ensureCloseBtn();
@@ -237,23 +275,49 @@ export function setupSettingsModal() {
     settingsModal.close();
   });
 
-  // Custom Dropdown Logic
+  // --- Dropdown Keyboard Accessibility Helper ---
+  function setupDropdownKeyboardAccessibility(dropdown, optionsList, onSelect) {
+    dropdown.addEventListener('keydown', async (e) => {
+      const options = Array.from(optionsList.querySelectorAll('.custom-dropdown-option'));
+      const currentIdx = options.findIndex(opt => opt.classList.contains('selected'));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        let nextIdx = (currentIdx + 1) % options.length;
+        await onSelect(options[nextIdx]);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        let prevIdx = (currentIdx - 1 + options.length) % options.length;
+        await onSelect(options[prevIdx]);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        dropdown.classList.toggle('open');
+      } else if (e.key === 'Escape') {
+        dropdown.classList.remove('open');
+      }
+    });
+  }
+
+  // Custom Dropdown Logic (Language)
   if (customDropdown && customDropdownOptions && customDropdownSelected) {
     customDropdown.addEventListener('mousedown', (e) => {
       if (!e.target.classList.contains('custom-dropdown-option')) {
         customDropdown.classList.toggle('open');
       }
     });
+    async function selectLangOption(option) {
+      if (!option) return;
+      customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      customDropdownSelected.textContent = option.textContent;
+      const langValue = option.getAttribute('data-value');
+      langHiddenInput.value = langValue;
+      customDropdown.classList.remove('open');
+      await loadAndApplyTranslations(langValue);
+    }
     customDropdownOptions.addEventListener('mousedown', async (e) => {
       const option = e.target.closest('.custom-dropdown-option');
       if (option && customDropdownOptions.contains(option)) {
-        customDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        customDropdownSelected.textContent = option.textContent;
-        const langValue = option.getAttribute('data-value');
-        langHiddenInput.value = langValue;
-        customDropdown.classList.remove('open');
-        await loadAndApplyTranslations(langValue); // Immediate feedback, but do NOT save
+        await selectLangOption(option);
       }
     });
     document.addEventListener('mousedown', (e) => {
@@ -261,13 +325,43 @@ export function setupSettingsModal() {
         customDropdown.classList.remove('open');
       }
     });
-    customDropdown.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        customDropdown.classList.toggle('open');
-        e.preventDefault();
-      } else if (e.key === 'Escape') {
-        customDropdown.classList.remove('open');
+    setupDropdownKeyboardAccessibility(customDropdown, customDropdownOptions, selectLangOption);
+  }
+
+  // --- Transcription Model Dropdown Logic ---
+  function setModelDropdownValueByOption(option) {
+    if (!option) return;
+    const model = option.getAttribute('data-value');
+    if (!modelDropdownOptions || !modelDropdownSelected || !modelHiddenInput) return;
+    modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
+      if (opt === option) {
+        opt.classList.add('selected');
+        modelDropdownSelected.textContent = opt.textContent;
+        modelHiddenInput.value = model;
+      } else {
+        opt.classList.remove('selected');
       }
+    });
+  }
+  if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
+    modelDropdown.addEventListener('mousedown', (e) => {
+      if (!e.target.classList.contains('custom-dropdown-option')) {
+        modelDropdown.classList.toggle('open');
+      }
+    });
+    modelDropdownOptions.addEventListener('mousedown', (e) => {
+      const option = e.target.closest('.custom-dropdown-option');
+      if (option && modelDropdownOptions.contains(option)) {
+        setModelDropdownValueByOption(option);
+        modelDropdown.classList.remove('open');
+      }
+    });
+    setupDropdownKeyboardAccessibility(modelDropdown, modelDropdownOptions, (option) => {
+      setModelDropdownValueByOption(option);
+    });
+    // Close dropdown on blur
+    modelDropdown.addEventListener('blur', () => {
+      setTimeout(() => modelDropdown.classList.remove('open'), 100);
     });
   }
 

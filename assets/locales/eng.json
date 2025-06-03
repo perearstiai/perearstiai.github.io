@@ -58,5 +58,9 @@
     "error_quota_exceeded": "Quota exceeded or billing issue.",
     "error_rate_limit": "You are sending requests too quickly. Please wait and try again.",
     "error_other": "Other error.",
-    "settings_required_error": "All required fields must be specified!"
+    "settings_required_error": "All required fields must be specified!",
+    "settings_transcribe_model": "Transcription Model",
+    "settings_transcribe_model_taltech": "TalTech",
+    "settings_transcribe_model_openai": "OpenAI Whisper",
+    "model_label": "Model:"
 }
