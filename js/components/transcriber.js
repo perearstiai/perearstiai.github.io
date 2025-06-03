@@ -66,7 +66,9 @@ export function setupTranscriber() {
     }
     updateModelLabel = function() {
       const model = getTranscribeModel();
-      let modelName = model === 'openai' ? 'OpenAI Whisper v1' : 'TalTech Whisper';
+      let modelName = model === 'openai'
+        ? getLocaleText('settings_transcribe_model_openai') || 'OpenAI Whisper v1'
+        : getLocaleText('settings_transcribe_model_taltech') || 'TalTech Whisper';
       modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} ${modelName}`;
     };
     updateModelLabel();

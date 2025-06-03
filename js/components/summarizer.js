@@ -187,7 +187,8 @@ export function setupSummarizer() {
       else summaryBox.parentElement.insertBefore(modelLabel, summaryBox);
     }
     function updateModelLabel() {
-      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} OpenAI GPT-4.1`;
+      const modelName = getLocaleText('settings_summarize_model_openai') || 'OpenAI GPT-4.1';
+      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} ${modelName}`;
     }
     updateModelLabel();
     onTranslationsUpdated(updateModelLabel);

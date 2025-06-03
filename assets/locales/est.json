@@ -62,6 +62,7 @@
     "settings_transcribe_model": "Transkribeerimise mudel",
     "settings_transcribe_model_taltech": "TalTech Whisper",
     "settings_transcribe_model_openai": "OpenAI Whisper v1",
+    "settings_summarize_model_openai": "OpenAI GPT-4.1",
     "model_label": "Mudel:",
     "stop": "Katkesta",
     "cancelling": "Katkestan...",

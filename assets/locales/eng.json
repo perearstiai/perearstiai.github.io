@@ -62,6 +62,7 @@
     "settings_transcribe_model": "Transcription Model",
     "settings_transcribe_model_taltech": "TalTech Whisper",
     "settings_transcribe_model_openai": "OpenAI Whisper",
+    "settings_summarize_model_openai": "OpenAI GPT-4.1",
     "model_label": "Model:",
     "stop": "Stop",
     "cancelling": "Stopping...",
