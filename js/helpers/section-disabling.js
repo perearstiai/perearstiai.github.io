@@ -8,6 +8,8 @@ export function setupSectionDisabling() {
   const summarizeButton = document.getElementById('summarizeButton');
 
   function updateSectionDisabling() {
+    // Prevent interfering with cancellation phase in transcriber.js
+    if (window.__transcriberIsCancelling) return;
     // Transcribe button
     const hasRecording = recordedFile.files && recordedFile.files.length > 0;
     if (!hasRecording) {

@@ -80,11 +80,29 @@ export function setupTranscriber() {
 
   let abortController = null;
   let isTranscribing = false;
+  let isCancelling = false;
+
+  // Patch: prevent disabling stop button during transcription if file is removed
+  recordedFile.addEventListener('change', () => {
+    if (isTranscribing && !isCancelling) {
+      // Do NOT disable the button if transcribing (stop must always be available)
+      transcribeButton.disabled = false;
+      transcribeButton.classList.remove('section-disabled-btn');
+      transcribeButton.style.cursor = '';
+      transcribeButton.removeAttribute('data-tooltip');
+    } else if (isCancelling) {
+      // During cancellation, do not change the button state at all
+      // (leave as disabled)
+      return;
+    }
+  });
 
   transcribeButton.addEventListener('click', async () => {
     if (isTranscribing) {
       // Cancel
       if (abortController) abortController.abort();
+      isCancelling = true;
+      window.__transcriberIsCancelling = true;
       transcribeButton.disabled = true;
       transcriptionBox.value = getLocaleText('cancelling') || 'Cancelling...';
       // Reset timer to 0.0s and keep visible, and reset timerStart
@@ -103,10 +121,16 @@ export function setupTranscriber() {
     lastInfo = { type: null, fileName: '', errorKey: '', errorMsg: '' };
 
     if (!file) {
+      // Only disable if not already transcribing
+      if (!isTranscribing) {
+        transcribeButton.disabled = true;
+      }
       setInfoText(getLocaleText('transcribe_section_disabled_tooltip') || 'Provide recording first', true);
       return;
     }
     isTranscribing = true;
+    isCancelling = false;
+    window.__transcriberIsCancelling = false;
     abortController = new AbortController();
     transcribeButton.textContent = getLocaleText('stop') || 'Stop';
     transcribeButton.classList.add('danger');
@@ -179,6 +203,8 @@ export function setupTranscriber() {
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
       isTranscribing = false;
+      isCancelling = false;
+      window.__transcriberIsCancelling = false;
       abortController = null;
       // Timer already stopped on cancel, but also stop here for normal completion
       stopTranscriptionTimer();
@@ -189,7 +215,18 @@ export function setupTranscriber() {
       if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, false);
       transcribeButton.textContent = getLocaleText('transcription_button') || 'Transcribe';
       transcribeButton.classList.remove('danger');
-      transcribeButton.disabled = false;
+      // Only disable if no file is present after completion/cancel, and not cancelling
+      if (!recordedFile.files[0]) {
+        transcribeButton.disabled = true;
+        transcribeButton.classList.add('section-disabled-btn');
+        transcribeButton.style.cursor = 'not-allowed';
+        transcribeButton.setAttribute('data-tooltip', getLocaleText('transcribe_section_disabled_tooltip'));
+      } else if (!isCancelling) {
+        transcribeButton.disabled = false;
+        transcribeButton.classList.remove('section-disabled-btn');
+        transcribeButton.style.cursor = '';
+        transcribeButton.removeAttribute('data-tooltip');
+      }
     }
   });
 }
