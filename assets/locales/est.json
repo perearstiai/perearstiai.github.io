@@ -62,5 +62,8 @@
     "settings_transcribe_model": "Transkribeerimise mudel",
     "settings_transcribe_model_taltech": "TalTech Whisper",
     "settings_transcribe_model_openai": "OpenAI Whisper v1",
-    "model_label": "Mudel:"
+    "model_label": "Mudel:",
+    "stop": "Katkesta",
+    "cancelling": "Katkestan...",
+    "interrupted": "Katkestatud."
 }

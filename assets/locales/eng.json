@@ -62,5 +62,8 @@
     "settings_transcribe_model": "Transcription Model",
     "settings_transcribe_model_taltech": "TalTech Whisper",
     "settings_transcribe_model_openai": "OpenAI Whisper",
-    "model_label": "Model:"
+    "model_label": "Model:",
+    "stop": "Stop",
+    "cancelling": "Stopping...",
+    "interrupted": "Stopped."
 }

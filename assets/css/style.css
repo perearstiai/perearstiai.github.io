@@ -262,6 +262,16 @@ button:focus {
   background: #125ea2;
 }
 
+/* Danger button style for red cancel button */
+button.danger {
+  background: #c62828 !important;
+  color: #fff !important;
+}
+button.danger:hover,
+button.danger:focus {
+  background: #b71c1c !important;
+}
+
 /* Icon buttons (clear, download, etc.) */
 .icon-btn {
   background: #d4e6f5;

@@ -78,7 +78,23 @@ export function setupTranscriber() {
     }
   }
 
+  let abortController = null;
+  let isTranscribing = false;
+
   transcribeButton.addEventListener('click', async () => {
+    if (isTranscribing) {
+      // Cancel
+      if (abortController) abortController.abort();
+      transcribeButton.disabled = true;
+      transcriptionBox.value = getLocaleText('cancelling') || 'Cancelling...';
+      // Reset timer to 0.0s and keep visible, and reset timerStart
+      transcriptionTimer.style.display = 'block';
+      transcriptionTimer.textContent = '0.0s';
+      timerStart = Date.now();
+      // Do not show info text yet; will show after process is actually cancelled in catch/finally
+      return;
+    }
+
     const file = recordedFile.files[0];
     const spinner = document.getElementById('transcriptionSpinner');
 
@@ -90,7 +106,12 @@ export function setupTranscriber() {
       setInfoText(getLocaleText('transcribe_section_disabled_tooltip') || 'Provide recording first', true);
       return;
     }
-    transcribeButton.disabled = true;
+    isTranscribing = true;
+    abortController = new AbortController();
+    transcribeButton.textContent = getLocaleText('stop') || 'Stop';
+    transcribeButton.classList.add('danger');
+    transcribeButton.disabled = false;
+
     lastInfo = { type: 'waiting', fileName: '', errorKey: '', errorMsg: '' };
     transcriptionBox.value = getLocaleText('transcribing_wait') || 'Transcribing...';
     spinner.removeAttribute('hidden');
@@ -112,7 +133,8 @@ export function setupTranscriber() {
         const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${apiKey}` },
-          body: formData
+          body: formData,
+          signal: abortController.signal
         });
         if (!response.ok) {
           const error = await response.json();
@@ -126,10 +148,13 @@ export function setupTranscriber() {
           window.__gradioClient = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
         }
         const { Client } = window.__gradioClient;
+        // Gradio client does not support AbortController, so we simulate cancel by skipping result if aborted
+        let localAbort = false;
+        abortController.signal.addEventListener('abort', () => { localAbort = true; });
         const client = await Client.connect('https://bark.cs.taltech.ee/subtitreeri/');
         const result = await client.predict('/predict', { file_path: file });
+        if (localAbort) throw new Error('interrupted');
         let vttText = result.data?.[0] || '[No transcription returned]';
-        // Remove WEBVTT header, timecodes, empty lines, and order numbers
         formattedText = vttText
           .replace(/^WEBVTT\s*/i, '')
           .replace(/\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g, '')
@@ -144,17 +169,27 @@ export function setupTranscriber() {
       transcriptionBox.value = '';
       let errorMsg = err.message || '';
       let errorKey = 'error_other';
-      console.error('API error:', err);
-      lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
-      updateInfoTextI18n();
+      if (errorMsg === 'interrupted' || err.name === 'AbortError') {
+        setInfoText(getLocaleText('interrupted') || 'Interrupted.', true); // Show info text only after cancellation is complete
+      } else {
+        console.error('API error:', err);
+        lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
+        updateInfoTextI18n();
+      }
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
+      isTranscribing = false;
+      abortController = null;
+      // Timer already stopped on cancel, but also stop here for normal completion
       stopTranscriptionTimer();
       spinner.setAttribute('hidden', '');
       spinner.style.display = 'none';
       transcriptionBox.classList.remove('textarea-loading');
       transcriptionBox.disabled = false;
       if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, false);
+      transcribeButton.textContent = getLocaleText('transcription_button') || 'Transcribe';
+      transcribeButton.classList.remove('danger');
+      transcribeButton.disabled = false;
     }
   });
 }
