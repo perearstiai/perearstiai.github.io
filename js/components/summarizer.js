@@ -2,7 +2,6 @@ import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTra
 
 export function setupSummarizer() {
   const summarizeButton = document.getElementById('summarizeButton');
-  const transcriptionBox = document.getElementById('transcriptionBox');
   const summaryBox = document.getElementById('summaryBox');
   const summarizeInfoText = document.getElementById('summarizeInfoText');
   const summaryTimer = document.getElementById('summaryTimer');
@@ -33,7 +32,15 @@ export function setupSummarizer() {
       let errorText = getLocaleText(lastInfo.errorKey) || '';
       if (lastInfo.errorKey === 'error_other') errorText += ' ' + (lastInfo.errorMsg || '');
       setInfoText(`${label} ${errorText}`, true);
+    }    
+    if (lastInfo.type === 'success')
+      return;
+
+    if (isSummarizing) {
+      summarizeButton.textContent = getLocaleText('stop');
+      summaryBox.value = getLocaleText('summarizing_wait');
     }
+    
   }
   onTranslationsUpdated(updateInfoTextI18n);
 

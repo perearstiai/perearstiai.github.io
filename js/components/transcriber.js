@@ -11,6 +11,10 @@ export function setupTranscriber() {
   let timerInterval = null;
   let timerStart = null;
 
+  let abortController = null;
+  let isTranscribing = false;
+  let isCancelling = false;
+
   // Store last info state for i18n updates
   let lastInfo = { type: null, fileName: '', errorKey: '', errorMsg: '' };
 
@@ -33,6 +37,17 @@ export function setupTranscriber() {
       if (lastInfo.errorKey === 'error_other') errorText += ' ' + (lastInfo.errorMsg || '');
       setInfoText(`${label} ${errorText}`, true);
     }
+    if (lastInfo.type === 'success')
+      return;
+    
+    if (isTranscribing) {
+      transcribeButton.textContent = getLocaleText('stop');
+      transcriptionBox.value = getLocaleText('transcribing_wait');
+    } else if (isCancelling) {
+      transcribeButton.textContent = getLocaleText('stop');
+      transcriptionBox.value = getLocaleText('cancelling');
+    }
+      
   }
   onTranslationsUpdated(updateInfoTextI18n);
 
@@ -79,10 +94,6 @@ export function setupTranscriber() {
       settingsModal.addEventListener('close', updateModelLabel);
     }
   }
-
-  let abortController = null;
-  let isTranscribing = false;
-  let isCancelling = false;
 
   // Patch: prevent disabling stop button during transcription if file is removed
   recordedFile.addEventListener('change', () => {
@@ -174,29 +185,47 @@ export function setupTranscriber() {
           window.__gradioClient = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
         }
         const { Client } = window.__gradioClient;
-        // Gradio client does not support AbortController, so we simulate cancel by skipping result if aborted
-        let localAbort = false;
-        abortController.signal.addEventListener('abort', () => { localAbort = true; });
         const client = await Client.connect('https://bark.cs.taltech.ee/subtitreeri/');
-        const result = await client.predict('/predict', { file_path: file });
-        if (localAbort) throw new Error('interrupted');
-        let vttText = result.data?.[0] || '[No transcription returned]';
+        let resultIterator;
+        let cancelled = false;
+        // Setup abort logic
+        abortController.signal.addEventListener('abort', () => {
+          cancelled = true;
+          if (resultIterator && resultIterator.cancel) resultIterator.cancel();
+        });
+        // Use submit (async iterator)
+        resultIterator = await client.submit('/predict', { file_path: file });
+        let vttText = '';
+        try {
+          for await (const res of resultIterator) {
+            // Only the last chunk is the final result
+            if (res && res.data && res.data[0]) {
+              vttText = res.data[0];
+            }
+          }
+        } catch (e) {
+          if (cancelled) throw new Error('interrupted');
+        }
+        if (cancelled) throw new Error('interrupted');
         formattedText = vttText
-          .replace(/^WEBVTT\s*/i, '')
-          .replace(/\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g, '')
-          .replace(/^\s*[\r\n]/gm, '')
-          .replace(/^\d+\s*$/gm, '');
+          ? vttText.replace(/^WEBVTT\s*/i, '')
+              .replace(/\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}\n/g, '')
+              .replace(/^\s*[\r\n]/gm, '')
+              .replace(/^\d+\s*$/gm, '')
+          : '[No transcription returned]';
       }
       transcriptionBox.value = formattedText || '[No transcription returned]';
       lastInfo = { type: 'success', fileName: file.name, errorKey: '', errorMsg: '' };
       updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } catch (err) {
+
       transcriptionBox.value = '';
       let errorMsg = err.message || '';
       let errorKey = 'error_other';
       if (errorMsg === 'interrupted' || err.name === 'AbortError') {
         setInfoText(getLocaleText('interrupted') || 'Interrupted.', true); // Show info text only after cancellation is complete
+        transcriptionBox.value = '';
       } else {
         console.error('API error:', err);
         lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
