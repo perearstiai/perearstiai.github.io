@@ -336,6 +336,7 @@ audio {
   align-items: center;
   gap: 0.5em;
   position: relative;
+  margin-bottom: 0;
 }
 
 .custom-file-label input[type="file"] {
@@ -1289,6 +1290,11 @@ dialog#attributionsModal a:hover{
   pointer-events: none;
   z-index: 3;
   font-family: monospace;
+}
+
+/* Hide textarea-timer when hidden attribute is present */
+.textarea-timer[hidden] {
+  display: none !important;
 }
 
 .textarea-model-label {
