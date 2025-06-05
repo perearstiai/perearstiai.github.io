@@ -1292,11 +1292,6 @@ dialog#attributionsModal a:hover{
   font-family: monospace;
 }
 
-/* Hide textarea-timer when hidden attribute is present */
-.textarea-timer[hidden] {
-  display: none !important;
-}
-
 .textarea-model-label {
   display: block;
   font-size: 0.85em;
