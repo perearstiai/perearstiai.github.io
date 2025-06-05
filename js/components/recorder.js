@@ -87,6 +87,21 @@ export function setupRecorder() {
     }
   });
 
+  function getSupportedAudioMimeType(mimeTypes) {
+    for (const [mime, extension] of Object.entries(mimeTypes)) {
+      if (MediaRecorder.isTypeSupported(mime)) {
+        return { mimeType: mime, extension };
+      }
+    }
+    return null; // No supported type found
+  }
+  const mimeTypes = {
+    'audio/ogg; codecs=opus': ".ogg",
+    'audio/webm; codecs=opus': ".webm",
+    'audio/mp4': ".mp4"
+  }
+  const supportedType = getSupportedAudioMimeType(mimeTypes);
+
   async function startRecording() {
     if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
       alert('Audio recording is not supported in this browser.');
@@ -94,7 +109,7 @@ export function setupRecorder() {
     }
     try {
       streamBeingCaptured = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(streamBeingCaptured);
+      mediaRecorder = new MediaRecorder(streamBeingCaptured, {mimeType: supportedType.mimeType});
       audioBlobs = [];
 
       mediaRecorder.addEventListener('dataavailable', event => {
@@ -121,9 +136,8 @@ export function setupRecorder() {
       if (!mediaRecorder) return resolve();
       mediaRecorder.addEventListener('stop', () => {
         stopStream();
-
-        const audioBlob = new Blob(audioBlobs, { type: mediaRecorder.mimeType });
-        audioFileName = "recording_" + getFormattedTime() + ".ogg";
+        const audioBlob = new Blob(audioBlobs, { type: supportedType.mimeType });
+        audioFileName = "recording_" + getFormattedTime() + supportedType.extension;
         const audioFile = new File([audioBlob], audioFileName);
 
         setFileSourceIndicator('recorded');
@@ -194,7 +208,8 @@ export function setupRecorder() {
       downloadBtn.style.display = "none";
       return;
     }
-    if (!file.type.startsWith('audio')) {
+    if (!file.type.startsWith('audio') && 
+      !["ogg", "mp4", "webm"].some(fileFormat => !file.type.includes(fileFormat))) {
       alert('File must be an audio file');
       if (lastValidFile) {
         const dt = new DataTransfer();
@@ -217,7 +232,7 @@ export function setupRecorder() {
     lastValidFile = file;
     lastRecordedBlob = null;
     downloadBtn.style.display = "none";
-    timer.textContent = "00:00:00.00"; // Reset timer display to always show hours
+    timer.textContent = "00:00:00.00"; // Reset timer display
     updateClearBtnVisibility();
   });
 
@@ -237,7 +252,8 @@ export function setupRecorder() {
   // Download logic
   downloadBtn.addEventListener('click', () => {
     if (lastRecordedBlob) {
-      const url = URL.createObjectURL(lastRecordedBlob);
+      const downloadBlob = new Blob([lastRecordedBlob], { type: supportedType.mimeType });
+      const url = URL.createObjectURL(downloadBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = audioFileName; // Use the same name as above

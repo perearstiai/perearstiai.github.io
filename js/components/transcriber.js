@@ -82,9 +82,9 @@ export function setupTranscriber() {
     updateModelLabel = function() {
       const model = getTranscribeModel();
       let modelName = model === 'openai'
-        ? getLocaleText('settings_transcribe_model_openai') || 'OpenAI Whisper v1'
-        : getLocaleText('settings_transcribe_model_taltech') || 'TalTech Whisper';
-      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} ${modelName}`;
+        ? getLocaleText('settings_transcribe_model_openai')
+        : getLocaleText('settings_transcribe_model_taltech');
+      modelLabel.textContent = `${getLocaleText('model_label')} ${modelName}`;
     };
     updateModelLabel();
     onTranslationsUpdated(updateModelLabel);
@@ -95,7 +95,7 @@ export function setupTranscriber() {
     }
   }
 
-  // Patch: prevent disabling stop button during transcription if file is removed
+  // Prevent disabling stop button during transcription if file is removed
   recordedFile.addEventListener('change', () => {
     if (isTranscribing && !isCancelling) {
       // Do NOT disable the button if transcribing (stop must always be available)
