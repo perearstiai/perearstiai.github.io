@@ -40,6 +40,11 @@
           </span>
         </div>
         <div class="row-group">
+          <label class="custom-file-label" style="margin-bottom:0;">
+            <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
+            <span class="custom-file-btn" data-i18n="recording_browse_button">Browse…</span>
+          </label>
+          <span class="or-separator" data-i18n="or_separator">OR</span>
           <button type="button" id="recordButton">Start Recording</button>
           <span id="timer">00:00</span>
         </div>
@@ -47,11 +52,6 @@
         <div id="recordingBox">
           <div class="row-group">
             <div class="audio-file-input-wrapper">
-              <label class="custom-file-label">
-                <input type="file" id="recordedFile" name="recordedFile" accept="audio/*" />
-                <span class="custom-file-btn" data-i18n="recording_browse_button">Browse…</span>
-              </label>
-              
               <div id="selectedInfoWrapper">
                 <label id="selectedFileText" for="recordedFile" data-i18n="recording_recorded_file">Selected File:</label>
                 <div id="recordedFileInfo">
@@ -59,7 +59,6 @@
                   <div id="recordedFileSource"></div>
                 </div>
               </div>
-              
               <div id="recordedFileActions">
                 <button type="button" id="downloadRecordedFile" class="icon-btn" aria-label="Download recording">
                   <img src="assets/img/save-icon.svg" alt="Save" class="icon-svg" />

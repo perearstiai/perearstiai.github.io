@@ -18,6 +18,7 @@
     "recording_stop_button": "Stop Recording",
     "recording_recorded_file": "Selected File:",
     "recording_browse_button": "Browse...",
+    "or_separator": "OR",
     "recording_no_file": "No file selected",
     "recording_file_source_recorded": "Recorded in browser",
     "recording_file_source_uploaded": "Uploaded from device",
