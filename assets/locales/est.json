@@ -67,5 +67,9 @@
     "model_label": "Mudel:",
     "stop": "Katkesta",
     "cancelling": "Katkestan...",
-    "interrupted": "Katkestatud."
+    "interrupted": "Katkestatud.",
+    "attribution_icon_small_logo": "Väike logo",
+    "attribution_icon_logo": "Logo",
+    "attribution_icon_eye": "Silm",
+    "attribution_icon_eye_slash": "Kriipsutatud silm"
 }

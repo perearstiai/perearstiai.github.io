@@ -67,5 +67,9 @@
     "model_label": "Model:",
     "stop": "Stop",
     "cancelling": "Stopping...",
-    "interrupted": "Stopped."
+    "interrupted": "Stopped.",
+    "attribution_icon_small_logo": "Small Logo",
+    "attribution_icon_logo": "Logo",
+    "attribution_icon_eye": "Eye",
+    "attribution_icon_eye_slash": "Eye Slash"
 }
