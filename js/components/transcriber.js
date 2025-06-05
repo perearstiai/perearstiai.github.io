@@ -31,13 +31,13 @@ export function setupTranscriber() {
       if (label && !/[\s:：]$/.test(label)) label += ':';
       setInfoText(`${label} ${lastInfo.fileName}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
+      transcriptionBox.value = '';
       let label = getLocaleText('transcribe_fail') || '';
       if (label && !/[\s:：!]$/.test(label)) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
-      if (lastInfo.errorKey === 'error_other') errorText += ' ' + (lastInfo.errorMsg || '');
       setInfoText(`${label} ${errorText}`, true);
     }
-    if (lastInfo.type === 'success')
+    if (lastInfo.type === 'success' || lastInfo.type === 'fail')
       return;
     
     if (isTranscribing) {
@@ -163,7 +163,6 @@ export function setupTranscriber() {
       if (model === 'openai') {
         // --- OpenAI Whisper ---
         const apiKey = getOpenAIKey().trim();
-        if (!apiKey) throw new Error(getLocaleText('error_incorrect_api_key') || 'Please enter your OpenAI API key in settings.');
         const formData = new FormData();
         formData.append('file', file);
         formData.append('model', 'whisper-1');
@@ -219,16 +218,21 @@ export function setupTranscriber() {
       updateInfoTextI18n();
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } catch (err) {
-
       transcriptionBox.value = '';
-      let errorMsg = err.message || '';
-      let errorKey = 'error_other';
-      if (errorMsg === 'interrupted' || err.name === 'AbortError') {
+      let eMsg = err.message || '';
+      let eKey = '';
+      if (eMsg.includes('Incorrect API key provided')) {
+        eMsg = getLocaleText('error_incorrect_api_key')
+        eKey = 'error_incorrect_api_key';
+      } else {
+        eKey = 'error_other';
+      }
+      if (eMsg === 'interrupted' || err.name === 'AbortError') {
         setInfoText(getLocaleText('interrupted') || 'Interrupted.', true); // Show info text only after cancellation is complete
         transcriptionBox.value = '';
       } else {
         console.error('API error:', err);
-        lastInfo = { type: 'fail', fileName: '', errorKey, errorMsg };
+        lastInfo = { type: 'fail', fileName: '', errorKey: eKey, errorMsg: eMsg };
         updateInfoTextI18n();
       }
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();

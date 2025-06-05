@@ -27,13 +27,13 @@ export function setupSummarizer() {
       if (label && !/[\s:：]$/.test(label)) label += ' ';
       setInfoText(`${label}${lastInfo.dateStr}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
+      summaryBox.value = '';
       let label = getLocaleText('summarize_fail') || '';
       if (label && !/[\s:：!]$/.test(label)) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
-      if (lastInfo.errorKey === 'error_other') errorText += ' ' + (lastInfo.errorMsg || '');
       setInfoText(`${label} ${errorText}`, true);
     }    
-    if (lastInfo.type === 'success')
+    if (lastInfo.type === 'success' || lastInfo.type === 'fail')
       return;
 
     if (isSummarizing) {
