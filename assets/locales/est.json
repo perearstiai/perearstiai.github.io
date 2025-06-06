@@ -10,7 +10,7 @@
     "settings_example_summaries_tooltip": "Näidiskokkuvõtted võivad suurendada loodava kokkuvõtte kvaliteeti.",
     "settings_advanced": "Edasijõudnutele",
     "settings_advanced_system_prompt": "Keelemudelile etteantav tekst",
-    "settings_apply": "Rakenda",
+    "settings_apply": "Salvesta",
     "settings_close": "Sulge",
     "recording_heading": "1. Salvesta vestlus",
     "recording_tooltip": "Vestlust on võimalik salvestada selle programmi abil. Heli lindistamiseks vajuta nuppu \"Alusta lindistamist\". Programmile on võimalik anda helifailina ka juba salvestatud vestlust.",
@@ -42,12 +42,12 @@
     "footer_about": "Teave",
     "footer_privacy": "Privaatsuspoliitika",
     "footer_attributions": "Viited",
-    "footer_app_text": "© 2025 Perearsti Abiline",
+    "footer_app_text": "© 2025 Tartu Ülikooli arvutiteaduse instituut",
     "modal_close": "Sulge",
     "about_title": "Teave",
     "about_description": "Perearsti Abiline on tööriist, mis aitab perearstidel teha kokkuvõtteid arsti ja patsiendi vahelistest vestlustest. Programm kasutab vestluse transkribeerimiseks kõnetuvastust ja kokkuvõtte tegemiseks loomuliku keele töötlust.",
     "privacy_title": "Privaatsuspoliitika",
-    "privacy_description": "Perearsti Assistent töötab sinu brauseris ja suhtleb ainult OpenAI serveritega. Pane tähele, et helisalvestis ja transkriptsioon saadetakse OpenAI-le töötluseks. Selle seaduslikkus on täielikult sinu enda vastutusel. OpenAI võti pole nähtav kellelegi muule peale sinu.",
+    "privacy_description": "Perearsti Assistent töötab ainult sinu brauseris ja suhtleb ainult TalTechi ja OpenAI serveritega. Sinu OpenAI API võti salvestatakse ainult kohalikus brauseri mälus ja ei ole teistele nähtav. Pidage meeles, et salvestatud heli ja transkriptsioon saadetakse töötlemiseks kolmandatele osapooltele. Privaatsuse huvides peaks seda süsteemi kasutama ainult demotarkvarana.",
     "attributions_title": "Viited",
     "attributions_icons_title": "Ikoonid",
     "copy": "Kopeeri",
@@ -71,5 +71,7 @@
     "attribution_icon_small_logo": "Väike logo",
     "attribution_icon_logo": "Logo",
     "attribution_icon_eye": "Silm",
-    "attribution_icon_eye_slash": "Kriipsutatud silm"
+    "attribution_icon_eye_slash": "Kriipsutatud silm",
+    "attributions_transcribers_title": "Kõnetuvastus",
+    "attribution_transcriber_taltech": "TalTech NLP"
 }
