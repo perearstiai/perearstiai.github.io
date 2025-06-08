@@ -118,12 +118,6 @@ export function setupSettingsModal() {
   const apikeyShow = document.getElementById('settings-apikey-show');
   const apikeyHide = document.getElementById('settings-apikey-hide');
 
-  // --- Transcription Model Dropdown Logic ---
-  const modelDropdown = document.getElementById('customModelDropdown');
-  const modelDropdownOptions = document.getElementById('customModelOptions');
-  const modelDropdownSelected = document.getElementById('customModelSelected');
-  const modelHiddenInput = document.getElementById('settingsTranscribeModel');
-
   let originalLang = getLang();
   let firstOpen = false;
 
@@ -208,18 +202,6 @@ export function setupSettingsModal() {
         }
       });
     }
-    // --- Transcription Model Dropdown Logic ---
-    if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
-      modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        if (opt.getAttribute('data-value') === s.transcribeModel) {
-          opt.classList.add('selected');
-          modelDropdownSelected.textContent = opt.textContent;
-          modelHiddenInput.value = s.transcribeModel;
-        } else {
-          opt.classList.remove('selected');
-        }
-      });
-    }
     settingsModal.showModal();
     validate();
     if (force) {
@@ -265,8 +247,7 @@ export function setupSettingsModal() {
       apiKey: apiKeyInput.value.trim(),
       examples: examplesInput.value.trim(),
       systemPrompt: systemPromptInput.value.trim(),
-      lang: langHiddenInput.value,
-      transcribeModel: modelHiddenInput.value
+      lang: langHiddenInput.value
     });
     if (firstOpen) {
       ensureCloseBtn();
@@ -328,43 +309,6 @@ export function setupSettingsModal() {
     setupDropdownKeyboardAccessibility(customDropdown, customDropdownOptions, selectLangOption);
   }
 
-  // --- Transcription Model Dropdown Logic ---
-  function setModelDropdownValueByOption(option) {
-    if (!option) return;
-    const model = option.getAttribute('data-value');
-    if (!modelDropdownOptions || !modelDropdownSelected || !modelHiddenInput) return;
-    modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-      if (opt === option) {
-        opt.classList.add('selected');
-        modelDropdownSelected.textContent = opt.textContent;
-        modelHiddenInput.value = model;
-      } else {
-        opt.classList.remove('selected');
-      }
-    });
-  }
-  if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
-    modelDropdown.addEventListener('mousedown', (e) => {
-      if (!e.target.classList.contains('custom-dropdown-option')) {
-        modelDropdown.classList.toggle('open');
-      }
-    });
-    modelDropdownOptions.addEventListener('mousedown', (e) => {
-      const option = e.target.closest('.custom-dropdown-option');
-      if (option && modelDropdownOptions.contains(option)) {
-        setModelDropdownValueByOption(option);
-        modelDropdown.classList.remove('open');
-      }
-    });
-    setupDropdownKeyboardAccessibility(modelDropdown, modelDropdownOptions, (option) => {
-      setModelDropdownValueByOption(option);
-    });
-    // Close dropdown on blur
-    modelDropdown.addEventListener('blur', () => {
-      setTimeout(() => modelDropdown.classList.remove('open'), 100);
-    });
-  }
-
   // Expose for requireSettings
   window._openSettingsModal = openModal;
 }
@@ -389,4 +333,28 @@ export function requireSettings() {
       resolve();
     }
   });
+}
+
+// Utility: get all progress messages from all loaded locales
+export async function getAllProgressMessages() {
+  // List of locale files
+  const localeFiles = ['eng', 'est'];
+  const keys = [
+    'cancelling',
+    'transcribing_wait',
+    'summarizing_wait'
+  ];
+  const messages = new Set();
+  for (const locale of localeFiles) {
+    try {
+      const res = await fetch(`assets/locales/${locale}.json`);
+      const data = await res.json();
+      for (const key of keys) {
+        if (data[key]) messages.add(data[key]);
+      }
+    } catch (e) {}
+  }
+  // Add hardcoded English/Estonian fallbacks
+  ['Cancelling...', 'Transcribing...', 'Summarizing...', 'Katkestan...', 'Transkribeerin...', 'Loon kokkuvõtet...'].forEach(m => messages.add(m));
+  return Array.from(messages);
 }

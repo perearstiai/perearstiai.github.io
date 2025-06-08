@@ -1,6 +1,125 @@
-import { getOpenAIKey, getLocaleText, onTranslationsUpdated, getTranscribeModel } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getTranscribeModel, setTranscribeModel, getAllProgressMessages } from '../components/settings.js';
 
-let modelLabel, updateModelLabel;
+let transcriberModel = getTranscribeModel();
+
+async function setupTranscriberModelDropdown() {
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'custom-dropdown';
+  dropdownContainer.id = 'customTranscriberDropdown';
+  dropdownContainer.tabIndex = 0;
+  const selected = document.createElement('span');
+  selected.className = 'custom-dropdown-selected';
+  selected.id = 'customTranscriberSelected';
+  dropdownContainer.appendChild(selected);
+  const arrow = document.createElement('img');
+  arrow.className = 'custom-dropdown-arrow';
+  arrow.src = 'assets/img/arrow-right.svg';
+  arrow.alt = '';
+  arrow.setAttribute('aria-hidden', 'true');
+  dropdownContainer.appendChild(arrow);
+  const optionsList = document.createElement('ul');
+  optionsList.className = 'custom-dropdown-options';
+  optionsList.id = 'customTranscriberOptions';
+  dropdownContainer.appendChild(optionsList);
+
+  // Fetch transcriber models
+  let providerModels = {};
+  try {
+    const res = await fetch('llm_apis/transcribers.json');
+    const data = await res.json();
+    providerModels = data.transcribers;
+  } catch (e) {
+    providerModels = { 'TalTech': [{ modelName: 'whisper', localeKey: 'transcribe_model_taltech_whisper', default: true }] };
+  }
+
+  // Populate dropdown with optgroups by provider
+  optionsList.innerHTML = '';
+  let foundSelected = false;
+  Object.entries(providerModels).forEach(([provider, models]) => {
+    const groupLi = document.createElement('li');
+    groupLi.textContent = provider;
+    groupLi.className = 'custom-dropdown-group';
+    optionsList.appendChild(groupLi);
+    models.forEach(model => {
+      const li = document.createElement('li');
+      li.className = 'custom-dropdown-option';
+      li.setAttribute('data-value', model.modelName);
+      li.setAttribute('data-provider', provider);
+      li.setAttribute('data-i18n', model.localeKey || model.modelName);
+      li.textContent = getLocaleText(model.localeKey) || model.modelName;
+      if ((model.default && !foundSelected) || model.modelName === transcriberModel) {
+        li.classList.add('selected');
+        selected.textContent = li.textContent;
+        transcriberModel = model.modelName;
+        setTranscribeModel(transcriberModel);
+        foundSelected = true;
+      }
+      optionsList.appendChild(li);
+    });
+  });
+
+  // Dropdown logic
+  dropdownContainer.addEventListener('mousedown', (e) => {
+    if (!e.target.classList.contains('custom-dropdown-option')) {
+      dropdownContainer.classList.toggle('open');
+    }
+  });
+  optionsList.addEventListener('mousedown', (e) => {
+    const option = e.target.closest('.custom-dropdown-option');
+    if (option && optionsList.contains(option)) {
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      selected.textContent = option.textContent;
+      transcriberModel = option.getAttribute('data-value');
+      setTranscribeModel(transcriberModel);
+      dropdownContainer.classList.remove('open');
+    }
+  });
+  document.addEventListener('mousedown', (e) => {
+    if (dropdownContainer.classList.contains('open') && !dropdownContainer.contains(e.target)) {
+      dropdownContainer.classList.remove('open');
+    }
+  });
+
+  // Insert dropdown and label/info text in a flex row above the textarea
+  const transcriptionBox = document.getElementById('transcriptionBox');
+  if (transcriptionBox) {
+    let dropdownRow = document.getElementById('transcriberDropdownRow');
+    if (!dropdownRow) {
+      dropdownRow = document.createElement('div');
+      dropdownRow.className = 'dropdown-row';
+      dropdownRow.id = 'transcriberDropdownRow';
+      transcriptionBox.parentElement.insertBefore(dropdownRow, transcriptionBox);
+    }
+    let label = document.getElementById('transcriptionModelDropdownLabel');
+    if (!label) {
+      label = document.createElement('span');
+      label.id = 'transcriptionModelDropdownLabel';
+      label.className = 'dropdown-label';
+      label.textContent = getLocaleText('transcribe_model');
+      dropdownRow.appendChild(label);
+    }
+    dropdownRow.appendChild(dropdownContainer);
+  }
+
+  // When disabling/enabling dropdown, also set disabled attribute on all options for accessibility
+  async function setDropdownDisabled(disabled) {
+    const label = document.getElementById('transcriptionModelDropdownLabel');
+    if (disabled) {
+      dropdownContainer.classList.add('disabled');
+      dropdownContainer.setAttribute('aria-disabled', 'true');
+      if (label) label.classList.add('disabled');
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.setAttribute('aria-disabled', 'true'));
+    } else {
+      dropdownContainer.classList.remove('disabled');
+      dropdownContainer.removeAttribute('aria-disabled');
+      if (label) label.classList.remove('disabled');
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.removeAttribute('aria-disabled'));
+    }
+  }
+  // Expose for use in transcribe logic
+  dropdownContainer.setDropdownDisabled = setDropdownDisabled;
+}
 
 export function setupTranscriber() {
   const transcribeButton = document.getElementById('transcribeButton');
@@ -24,22 +143,31 @@ export function setupTranscriber() {
   }
 
   function updateInfoTextI18n() {
+    transcriptionBox.placeholder = getLocaleText('transcription_placeholder') || 'Transcribed text will appear here...';
+
+    // Robust: clear progress message from any locale
+    getAllProgressMessages().then(progressMessages => {
+      if (!isTranscribing && !isCancelling && progressMessages.some(msg => msg && transcriptionBox.value && transcriptionBox.value.trim().toLowerCase() === msg.trim().toLowerCase())) {
+        transcriptionBox.value = '';
+      }
+    });
+
     if (lastInfo.type === 'waiting') {
       transcriptionBox.value = getLocaleText('transcribing_wait') || 'Transcribing...';
     } else if (lastInfo.type === 'success' && lastInfo.fileName) {
       let label = getLocaleText('transcribe_success') || '';
-      if (label && !/[\s:：]$/.test(label)) label += ':';
+      if (label && !(/[\uff1a]$/.test(label))) label += ':';
       setInfoText(`${label} ${lastInfo.fileName}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
       transcriptionBox.value = '';
       let label = getLocaleText('transcribe_fail') || '';
-      if (label && !/[\s:：!]$/.test(label)) label += ':';
+      if (label && !(/[\uff1a!]$/.test(label))) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
       setInfoText(`${label} ${errorText}`, true);
     }
     if (lastInfo.type === 'success' || lastInfo.type === 'fail')
       return;
-    
+
     if (isTranscribing) {
       transcribeButton.textContent = getLocaleText('stop');
       transcriptionBox.value = getLocaleText('transcribing_wait');
@@ -47,7 +175,6 @@ export function setupTranscriber() {
       transcribeButton.textContent = getLocaleText('stop');
       transcriptionBox.value = getLocaleText('cancelling');
     }
-      
   }
   onTranslationsUpdated(updateInfoTextI18n);
 
@@ -67,33 +194,7 @@ export function setupTranscriber() {
     timerInterval = null;
   }
 
-  // Add locale-compatible model/version label above textarea
-  if (transcriptionBox) {
-    modelLabel = document.getElementById('transcriptionModelLabel');
-    if (!modelLabel) {
-      modelLabel = document.createElement('div');
-      modelLabel.id = 'transcriptionModelLabel';
-      modelLabel.className = 'textarea-model-label';
-      // Insert as first child of wrapper (before copy/expand buttons)
-      const wrapper = transcriptionBox.closest('.copy-textarea-wrapper, .textarea-expand-wrapper');
-      if (wrapper) wrapper.insertBefore(modelLabel, wrapper.firstChild);
-      else transcriptionBox.parentElement.insertBefore(modelLabel, transcriptionBox);
-    }
-    updateModelLabel = function() {
-      const model = getTranscribeModel();
-      let modelName = model === 'openai'
-        ? getLocaleText('settings_transcribe_model_openai')
-        : getLocaleText('settings_transcribe_model_taltech');
-      modelLabel.textContent = `${getLocaleText('model_label')} ${modelName}`;
-    };
-    updateModelLabel();
-    onTranslationsUpdated(updateModelLabel);
-    // Also update when settings modal closes (in case model changed)
-    const settingsModal = document.getElementById('settingsModal');
-    if (settingsModal) {
-      settingsModal.addEventListener('close', updateModelLabel);
-    }
-  }
+  setupTranscriberModelDropdown();
 
   // Prevent disabling stop button during transcription if file is removed
   recordedFile.addEventListener('change', () => {
@@ -109,6 +210,13 @@ export function setupTranscriber() {
       return;
     }
   });
+
+  let dropdown = document.getElementById('customTranscriberDropdown');
+  function setDropdownStateDuringTranscribe(disabled) {
+    // Always get the dropdown fresh in case it was re-injected
+    const dropdown = document.getElementById('customTranscriberDropdown');
+    if (dropdown && dropdown.setDropdownDisabled) dropdown.setDropdownDisabled(disabled);
+  }
 
   transcribeButton.addEventListener('click', async () => {
     if (isTranscribing) {
@@ -157,15 +265,34 @@ export function setupTranscriber() {
     transcriptionBox.disabled = true;
     if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, true);
     startTranscriptionTimer();
+    setDropdownStateDuringTranscribe(true);
     try {
       const model = getTranscribeModel();
       let formattedText = '';
-      if (model === 'openai') {
+      // Find the selected model's provider and modelName
+      let selectedProvider = null;
+      let selectedModelName = model;
+      let providerModels = {};
+      try {
+        const res = await fetch('llm_apis/transcribers.json');
+        const data = await res.json();
+        providerModels = data.transcribers;
+      } catch (e) {}
+      outer: for (const [provider, models] of Object.entries(providerModels)) {
+        for (const m of models) {
+          if (m.modelName === model) {
+            selectedProvider = provider;
+            selectedModelName = m.modelName;
+            break outer;
+          }
+        }
+      }
+      if (selectedProvider === 'OpenAI') {
         // --- OpenAI Whisper ---
         const apiKey = getOpenAIKey().trim();
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('model', 'whisper-1');
+        formData.append('model', selectedModelName);
         const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${apiKey}` },
@@ -187,17 +314,14 @@ export function setupTranscriber() {
         const client = await Client.connect('https://bark.cs.taltech.ee/subtitreeri/');
         let resultIterator;
         let cancelled = false;
-        // Setup abort logic
         abortController.signal.addEventListener('abort', () => {
           cancelled = true;
           if (resultIterator && resultIterator.cancel) resultIterator.cancel();
         });
-        // Use submit (async iterator)
         resultIterator = await client.submit('/predict', { file_path: file });
         let vttText = '';
         try {
           for await (const res of resultIterator) {
-            // Only the last chunk is the final result
             if (res && res.data && res.data[0]) {
               vttText = res.data[0];
             }
@@ -237,6 +361,7 @@ export function setupTranscriber() {
       }
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
+      // Set flags to false before any i18n update can run
       isTranscribing = false;
       isCancelling = false;
       window.__transcriberIsCancelling = false;
@@ -250,6 +375,7 @@ export function setupTranscriber() {
       if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, false);
       transcribeButton.textContent = getLocaleText('transcription_button') || 'Transcribe';
       transcribeButton.classList.remove('danger');
+      setDropdownStateDuringTranscribe(false);
       // Only disable if no file is present after completion/cancel, and not cancelling
       if (!recordedFile.files[0]) {
         transcribeButton.disabled = true;
@@ -262,6 +388,27 @@ export function setupTranscriber() {
         transcribeButton.style.cursor = '';
         transcribeButton.removeAttribute('data-tooltip');
       }
+      // If cancelled, clear textarea and restore placeholder
+      if (transcriptionBox.value === getLocaleText('cancelling') || transcriptionBox.value.toLowerCase().includes('cancelling')) {
+        transcriptionBox.value = '';
+        transcriptionBox.placeholder = getLocaleText('transcription_placeholder') || 'Transcribed text will appear here...';
+      }
     }
   });
+
+  // Move info text to be after the button in the row-group (do this only once, not at the end)
+  if (transcribeButton && transcribeInfoText && transcribeButton.nextSibling !== transcribeInfoText) {
+    transcribeButton.parentNode.insertBefore(transcribeInfoText, transcribeButton.nextSibling);
+  }
+
+  // Restore placeholder from i18n
+  if (transcriptionBox) {
+    transcriptionBox.placeholder = getLocaleText('transcription_placeholder') || 'Transcribed text will appear here...';
+  }
+
+  // Make textarea interactive when not loading
+  if (transcriptionBox) {
+    transcriptionBox.readOnly = false;
+    transcriptionBox.disabled = false;
+  }
 }

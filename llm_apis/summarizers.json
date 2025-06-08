@@ -3,12 +3,12 @@
         "OpenAI": [
 {
                 "modelName": "gpt-4o",
-                "localeKey": "settings_summarize_model_openai_gpt4_o",
+                "localeKey": "summarize_model_openai_gpt4_o",
                 "default": true
             },
             {
                 "modelName": "gpt-4.1",
-                "localeKey": "settings_summarize_model_openai_gpt4_1"
+                "localeKey": "summarize_model_openai_gpt4_1"
             }
         ]
     }

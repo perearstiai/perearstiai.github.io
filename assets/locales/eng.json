@@ -60,11 +60,6 @@
     "error_rate_limit": "You are sending requests too quickly. Please wait and try again.",
     "error_other": "Other error.",
     "settings_required_error": "All required fields must be specified!",
-    "settings_transcribe_model": "Transcription Model",
-    "settings_transcribe_model_taltech": "TalTech Whisper",
-    "settings_transcribe_model_openai": "OpenAI Whisper",
-    "settings_summarize_model_openai": "OpenAI GPT-4.1",
-    "model_label": "Model:",
     "stop": "Stop",
     "cancelling": "Stopping...",
     "interrupted": "Stopped.",
@@ -73,5 +68,11 @@
     "attribution_icon_eye": "Eye",
     "attribution_icon_eye_slash": "Eye Slash",
     "attributions_transcribers_title": "Speech Recognition",
-    "attribution_transcriber_taltech": "TalTech NLP"
+    "attribution_transcriber_taltech": "TalTech NLP",
+    "transcribe_model": "Model:",
+    "transcribe_model_taltech_whisper": "Whisper",
+    "transcribe_model_openai_whisper": "Whisper",
+    "summarize_model": "Model:",
+    "summarize_model_openai_gpt4_o": "GPT-4o",
+    "summarize_model_openai_gpt4_1": "GPT-4.1"
 }

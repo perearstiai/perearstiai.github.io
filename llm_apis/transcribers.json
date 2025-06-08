@@ -3,14 +3,14 @@
         "TalTech": [
             {
                 "modelName": "whisper",
-                "localeKey": "settings_transcribe_model_taltech_whisper",
+                "localeKey": "transcribe_model_taltech_whisper",
                 "default": true
             }
         ],
         "OpenAI": [
             {
                 "modelName": "whisper-1",
-                "localeKey": "settings_transcribe_model_openai_whisper"
+                "localeKey": "transcribe_model_openai_whisper"
             }
         ]
     }

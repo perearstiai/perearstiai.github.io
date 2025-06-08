@@ -60,11 +60,6 @@
     "error_rate_limit": "Saadad päringuid liiga kiiresti. Palun oota ja proovi uuesti.",
     "error_other": "Muu viga.",
     "settings_required_error": "Kõik kohustuslikud väljad peavad olema täidetud!",
-    "settings_transcribe_model": "Transkribeerimise mudel",
-    "settings_transcribe_model_taltech": "TalTech Whisper",
-    "settings_transcribe_model_openai": "OpenAI Whisper",
-    "settings_summarize_model_openai": "OpenAI GPT-4.1",
-    "model_label": "Mudel:",
     "stop": "Katkesta",
     "cancelling": "Katkestan...",
     "interrupted": "Katkestatud.",
@@ -73,5 +68,11 @@
     "attribution_icon_eye": "Silm",
     "attribution_icon_eye_slash": "Kriipsutatud silm",
     "attributions_transcribers_title": "Kõnetuvastus",
-    "attribution_transcriber_taltech": "TalTech NLP"
+    "attribution_transcriber_taltech": "TalTech NLP",
+    "transcribe_model": "Mudel:",
+    "transcribe_model_taltech_whisper": "Whisper",
+    "transcribe_model_openai_whisper": "Whisper",
+    "summarize_model": "Mudel:",
+    "summarize_model_openai_gpt4_o": "GPT-4o",
+    "summarize_model_openai_gpt4_1": "GPT-4.1"
 }
