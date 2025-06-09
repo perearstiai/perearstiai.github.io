@@ -166,6 +166,7 @@ export function setupTranscriber() {
 
   function updateInfoTextI18n() {
     transcriptionBox.placeholder = getLocaleText('transcription_placeholder') || 'Transcribed text will appear here...';
+    document.getElementById('transcriptionModelDropdownLabel').textContent = getLocaleText('transcribe_model');
 
     // Robust: clear progress message from any locale
     getAllProgressMessages().then(progressMessages => {

@@ -23,7 +23,6 @@ export function setupSectionDisabling() {
       transcribeButton.style.cursor = '';
       transcribeButton.removeAttribute('data-tooltip');
     }
-    console.log('updateSectionDisabling called');
     // Summarize button
     const hasTranscription = transcriptionBox.value && transcriptionBox.value.trim().length > 0 && transcriptionBox.value.trim() !== getLocaleText('transcribing_wait');
     if (!hasTranscription) {

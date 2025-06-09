@@ -157,6 +157,7 @@ export function setupSummarizer() {
 
   function updateInfoTextI18n() {
     summaryBox.placeholder = getLocaleText('summary_placeholder') || 'Summary will appear here...';
+    document.getElementById('summaryModelDropdownLabel').textContent = getLocaleText('summarize_model');
 
     // Robust: clear progress message from any locale
     getAllProgressMessages().then(progressMessages => {
