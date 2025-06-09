@@ -23,8 +23,9 @@ export function setupSectionDisabling() {
       transcribeButton.style.cursor = '';
       transcribeButton.removeAttribute('data-tooltip');
     }
+    console.log('updateSectionDisabling called');
     // Summarize button
-    const hasTranscription = transcriptionBox.value && transcriptionBox.value.trim().length > 0;
+    const hasTranscription = transcriptionBox.value && transcriptionBox.value.trim().length > 0 && transcriptionBox.value.trim() !== getLocaleText('transcribing_wait');
     if (!hasTranscription) {
       summarizeButton.disabled = true;
       summarizeButton.classList.add('section-disabled-btn');
@@ -39,6 +40,7 @@ export function setupSectionDisabling() {
   }
   recordedFile.addEventListener('change', updateSectionDisabling);
   transcriptionBox.addEventListener('input', updateSectionDisabling);
+  transcriptionBox.addEventListener('transcription-updated', updateSectionDisabling);
   onTranslationsUpdated(updateSectionDisabling);
   updateSectionDisabling();
   window.addEventListener('recording-injected', updateSectionDisabling);

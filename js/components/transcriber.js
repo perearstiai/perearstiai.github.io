@@ -12,6 +12,12 @@ function getTranscriberModelInfo() {
 function setTranscriberModelInfo(provider, modelName) {
   localStorage.setItem('transcriber_model_info', JSON.stringify({ provider, modelName }));
 }
+function dispatchTranscriptionUpdated() {
+  const transcriptionBox = document.getElementById('transcriptionBox');
+  if (transcriptionBox) {
+    transcriptionBox.dispatchEvent(new Event('transcription-updated', { bubbles: true }));
+  }
+}
 
 let transcriberModelInfo = getTranscriberModelInfo() || { provider: null, modelName: null };
 
@@ -245,6 +251,7 @@ export function setupTranscriber() {
       transcriptionTimer.textContent = '0.0s';
       timerStart = Date.now();
       // Do not show info text yet; will show after process is actually cancelled in catch/finally
+      dispatchTranscriptionUpdated();
       return;
     }
 
@@ -280,6 +287,7 @@ export function setupTranscriber() {
     if (window.setTextareaLoadingState) window.setTextareaLoadingState(transcriptionBox, true);
     startTranscriptionTimer();
     setDropdownStateDuringTranscribe(true);
+    dispatchTranscriptionUpdated();
     try {
       // Use transcriberModelInfo instead of getTranscriberModel
       const { provider: selectedProvider, modelName: selectedModelName } = transcriberModelInfo;
