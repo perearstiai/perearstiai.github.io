@@ -2,11 +2,9 @@ const SETTINGS_KEYS = {
   apiKey: 'openai_api_key',
   examples: 'openai_examples',
   systemPrompt: 'openai_system_prompt',
-  lang: 'lang',
-  transcribeModel: 'transcribe_model'
+  lang: 'lang'
 };
 
-export const DEFAULT_TRANSCRIBE_MODEL = 'taltech'; // Default transcription model
 const DEFAULT_SYSTEM_PROMPT = `You are a medical transcriber specializing in structured clinical notes. 
  
 I will provide an AI-generated transcription of a doctor-patient encounter. Since AI may misinterpret medical terms, medications, and dosages, your task is to: 
@@ -34,17 +32,15 @@ export function getSettings() {
     examples: examples,
     wrappedExamples: wrappedExamples,
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
-    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est',
-    transcribeModel: localStorage.getItem(SETTINGS_KEYS.transcribeModel) || DEFAULT_TRANSCRIBE_MODEL
+    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est'
   };
 }
-export function saveSettings({ apiKey, examples, systemPrompt, lang, transcribeModel }) {
+export function saveSettings({ apiKey, examples, systemPrompt, lang }) {
   localStorage.setItem(SETTINGS_KEYS.apiKey, apiKey);
   const wrappedExamples = `[Examples begin]\n${examples ? examples.trim() : ''}\n[Examples end]`;
   localStorage.setItem(SETTINGS_KEYS.examples, wrappedExamples);
   localStorage.setItem(SETTINGS_KEYS.systemPrompt, systemPrompt);
   if (lang) localStorage.setItem(SETTINGS_KEYS.lang, lang);
-  if (transcribeModel) localStorage.setItem(SETTINGS_KEYS.transcribeModel, transcribeModel);
 }
 export function getOpenAIKey() {
   return getSettings().apiKey;
@@ -61,12 +57,9 @@ export function getSystemPrompt() {
 export function getLang() {
   return getSettings().lang;
 }
-export function getTranscribeModel() {
-  return getSettings().transcribeModel;
-}
-export function setTranscribeModel(model) {
-  localStorage.setItem(SETTINGS_KEYS.transcribeModel, model);
-}
+
+// Removed setTranscribeModel and getTranscribeModel
+
 export async function requireLang() {
   let lang = localStorage.getItem(SETTINGS_KEYS.lang);
   if (!lang) {
@@ -84,7 +77,13 @@ export async function loadAndApplyTranslations(lang) {
   // Text content
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[key]) el.textContent = translations[key];
+    let translatedText = translations[key] || key;
+    // Handle line breaks in translations (\n)
+    if (translatedText.includes('\n')) {
+      el.innerHTML = translatedText.replace(/\n/g, '<br>');
+    } else {
+      el.textContent = translatedText;
+    }
   });
   // Placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
@@ -117,12 +116,6 @@ export function setupSettingsModal() {
   const customDropdownSelected = document.getElementById('customLangSelected');
   const apikeyShow = document.getElementById('settings-apikey-show');
   const apikeyHide = document.getElementById('settings-apikey-hide');
-
-  // --- Transcription Model Dropdown Logic ---
-  const modelDropdown = document.getElementById('customModelDropdown');
-  const modelDropdownOptions = document.getElementById('customModelOptions');
-  const modelDropdownSelected = document.getElementById('customModelSelected');
-  const modelHiddenInput = document.getElementById('settingsTranscribeModel');
 
   let originalLang = getLang();
   let firstOpen = false;
@@ -208,18 +201,6 @@ export function setupSettingsModal() {
         }
       });
     }
-    // --- Transcription Model Dropdown Logic ---
-    if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
-      modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-        if (opt.getAttribute('data-value') === s.transcribeModel) {
-          opt.classList.add('selected');
-          modelDropdownSelected.textContent = opt.textContent;
-          modelHiddenInput.value = s.transcribeModel;
-        } else {
-          opt.classList.remove('selected');
-        }
-      });
-    }
     settingsModal.showModal();
     validate();
     if (force) {
@@ -265,8 +246,7 @@ export function setupSettingsModal() {
       apiKey: apiKeyInput.value.trim(),
       examples: examplesInput.value.trim(),
       systemPrompt: systemPromptInput.value.trim(),
-      lang: langHiddenInput.value,
-      transcribeModel: modelHiddenInput.value
+      lang: langHiddenInput.value
     });
     if (firstOpen) {
       ensureCloseBtn();
@@ -328,43 +308,6 @@ export function setupSettingsModal() {
     setupDropdownKeyboardAccessibility(customDropdown, customDropdownOptions, selectLangOption);
   }
 
-  // --- Transcription Model Dropdown Logic ---
-  function setModelDropdownValueByOption(option) {
-    if (!option) return;
-    const model = option.getAttribute('data-value');
-    if (!modelDropdownOptions || !modelDropdownSelected || !modelHiddenInput) return;
-    modelDropdownOptions.querySelectorAll('.custom-dropdown-option').forEach(opt => {
-      if (opt === option) {
-        opt.classList.add('selected');
-        modelDropdownSelected.textContent = opt.textContent;
-        modelHiddenInput.value = model;
-      } else {
-        opt.classList.remove('selected');
-      }
-    });
-  }
-  if (modelDropdown && modelDropdownOptions && modelDropdownSelected) {
-    modelDropdown.addEventListener('mousedown', (e) => {
-      if (!e.target.classList.contains('custom-dropdown-option')) {
-        modelDropdown.classList.toggle('open');
-      }
-    });
-    modelDropdownOptions.addEventListener('mousedown', (e) => {
-      const option = e.target.closest('.custom-dropdown-option');
-      if (option && modelDropdownOptions.contains(option)) {
-        setModelDropdownValueByOption(option);
-        modelDropdown.classList.remove('open');
-      }
-    });
-    setupDropdownKeyboardAccessibility(modelDropdown, modelDropdownOptions, (option) => {
-      setModelDropdownValueByOption(option);
-    });
-    // Close dropdown on blur
-    modelDropdown.addEventListener('blur', () => {
-      setTimeout(() => modelDropdown.classList.remove('open'), 100);
-    });
-  }
-
   // Expose for requireSettings
   window._openSettingsModal = openModal;
 }
@@ -389,4 +332,28 @@ export function requireSettings() {
       resolve();
     }
   });
+}
+
+// Utility: get all progress messages from all loaded locales
+export async function getAllProgressMessages() {
+  // List of locale files
+  const localeFiles = ['eng', 'est'];
+  const keys = [
+    'cancelling',
+    'transcribing_wait',
+    'summarizing_wait'
+  ];
+  const messages = new Set();
+  for (const locale of localeFiles) {
+    try {
+      const res = await fetch(`assets/locales/${locale}.json`);
+      const data = await res.json();
+      for (const key of keys) {
+        if (data[key]) messages.add(data[key]);
+      }
+    } catch (e) {}
+  }
+  // Add hardcoded English/Estonian fallbacks
+  ['Cancelling...', 'Transcribing...', 'Summarizing...', 'Katkestan...', 'Transkribeerin...', 'Loon kokkuvõtet...'].forEach(m => messages.add(m));
+  return Array.from(messages);
 }

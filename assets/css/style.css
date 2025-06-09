@@ -145,6 +145,12 @@ main {
   width: 100%;
 }
 
+.row-group > button, .row-group > .info-text {
+  vertical-align: middle;
+  line-height: 1.5em;
+  align-self: center;
+}
+
 .main-section {
   margin-left: 1em;
   margin-right: 1em;
@@ -527,6 +533,13 @@ dialog#settingsModal {
   margin-top: 0.5em;
 }
 
+/* Remove custom model dropdown styles from settings modal */
+#customModelDropdown,
+#customModelSelected,
+#customModelOptions {
+  display: none !important;
+}
+
 .custom-dropdown {
   position: relative;
   width: 210px;
@@ -549,8 +562,9 @@ dialog#settingsModal {
   justify-content: space-between;
   min-height: 38px;
 }
-#customModelDropdown {
-  width: 350px;
+#customTranscriberDropdown,
+#customSummarizerDropdown {
+  width: 280px;
 }
 
 .custom-dropdown:focus,
@@ -813,15 +827,8 @@ dialog#attributionsModal a:hover{
   min-height: 60px;
   max-height: 40vh;
   overflow-y: auto;
-  resize: vertical; /* Allow manual resize by default */
-}
-
-.copy-textarea-wrapper textarea.expanded-textarea,
-.textarea-expand-wrapper textarea.expanded-textarea {
-  min-height: 60px;
-  max-height: 180vh;
-  /* height will be set by JS when expanded */
-  resize: none; /* Prevent manual shrinking while auto-expanded */
+  resize: vertical;
+  position: relative;
 }
 
 /* =========================
@@ -829,8 +836,8 @@ dialog#attributionsModal a:hover{
    ========================= */
 .copy-btn {
   position: absolute;
-  top: 2em;
-  right: 0.7em;
+  top: 140px;
+  right: 1em;
   background: #e3f2fd;
   border: 1.5px solid #1976d2;
   color: #1976d2;
@@ -1167,11 +1174,50 @@ dialog#attributionsModal a:hover{
   }
 }
 
-#transcribeButton:disabled,
-#summarizeButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.textarea-timer, #transcriptionTimer, #summaryTimer {
+  position: absolute;
+  left: 8px;
+  bottom: 40px;
+  font-size: 1em;
+  color: #1976d2;
+  padding: 2px 8px;
+  border-radius: 6px;
+  z-index: 2;
   pointer-events: none;
+}
+
+/* Spinner centered in textarea */
+#transcriptionSpinner, #summarySpinner {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  z-index: 3;
+}
+
+/* Info text to right of button, perfectly aligned */
+.info-text {
+  display: inline-block;
+  margin-left: 1.2em;
+  vertical-align: middle;
+  font-size: 1em;
+  min-width: 120px;
+  max-width: 60vw;
+  white-space: pre-line;
+  text-align: left;
+  position: static;
+  background: none;
+  line-height: 2.4em;
+}
+.info-success {
+  color: #388e3c;
+}
+.info-error {
+  color: #c62828;
+}
+
+.row-group {
+  align-items: center;
+  position: relative;
 }
 
 /* =========================
@@ -1280,18 +1326,6 @@ dialog#attributionsModal a:hover{
   display: none;
 }
 
-.textarea-timer {
-  position: absolute;
-  left: 0.8em;
-  bottom: 0.5em;
-  font-size: 0.95em;
-  color: #888;
-  opacity: 0.85;
-  pointer-events: none;
-  z-index: 3;
-  font-family: monospace;
-}
-
 .textarea-model-label {
   display: block;
   font-size: 0.85em;
@@ -1304,4 +1338,46 @@ dialog#attributionsModal a:hover{
   letter-spacing: 0.01em;
   font-weight: 400;
   pointer-events: none;
+}
+
+.custom-dropdown-group {
+  font-weight: bold;
+  color: #ffffff;
+  background: #1a5077;
+  padding: 8px 18px 4px 18px;
+  cursor: default;
+  font-size: 1em;
+  border-bottom: 1px solid #bbdefb;
+  pointer-events: none;
+}
+
+.custom-dropdown[aria-disabled="true"],
+.custom-dropdown.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.dropdown-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 0.5em;
+}
+.dropdown-label {
+  margin-bottom: 0.7em;
+  font-size: 1.2em;
+  color: #1976d2;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity 0.2s, color 0.2s;
+}
+.dropdown-label.disabled {
+  color: #888;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.info-text {
+  margin-top: 0 !important;
 }

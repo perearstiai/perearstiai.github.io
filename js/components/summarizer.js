@@ -1,4 +1,140 @@
-import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
+
+let summarizerModel = 'gpt-4o'; // Default summarizer model
+let summarizerModelInfo = getSummarizerModelInfo() || { provider: null, modelName: null };
+
+function getSummarizerModelInfo() {
+  try {
+    const raw = localStorage.getItem('summarizer_model_info');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+function setSummarizerModelInfo(provider, modelName) {
+  localStorage.setItem('summarizer_model_info', JSON.stringify({ provider, modelName }));
+}
+
+async function setupSummarizerModelDropdown() {
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'custom-dropdown';
+  dropdownContainer.id = 'customSummarizerDropdown';
+  dropdownContainer.tabIndex = 0;
+  const selected = document.createElement('span');
+  selected.className = 'custom-dropdown-selected';
+  selected.id = 'customSummarizerSelected';
+  dropdownContainer.appendChild(selected);
+  const arrow = document.createElement('img');
+  arrow.className = 'custom-dropdown-arrow';
+  arrow.src = 'assets/img/arrow-right.svg';
+  arrow.alt = '';
+  arrow.setAttribute('aria-hidden', 'true');
+  dropdownContainer.appendChild(arrow);
+  const optionsList = document.createElement('ul');
+  optionsList.className = 'custom-dropdown-options';
+  optionsList.id = 'customSummarizerOptions';
+  dropdownContainer.appendChild(optionsList);
+
+  // Fetch summarizer models
+  let providerModels = {};
+  try {
+    const res = await fetch('llm_apis/summarizers.json');
+    const data = await res.json();
+    providerModels = data.summarizers;
+  } catch (e) {
+    providerModels = { 'OpenAI': [{ modelName: 'gpt-4o', localeKey: 'summarize_model_openai_gpt4_o', default: true }] };
+  }
+
+  // Populate dropdown with optgroups by provider
+  optionsList.innerHTML = '';
+  let foundSelected = false;
+  Object.entries(providerModels).forEach(([provider, models]) => {
+    const groupLi = document.createElement('li');
+    groupLi.textContent = provider;
+    groupLi.className = 'custom-dropdown-group';
+    optionsList.appendChild(groupLi);
+    models.forEach(model => {
+      const li = document.createElement('li');
+      li.className = 'custom-dropdown-option';
+      li.setAttribute('data-value', model.modelName);
+      li.setAttribute('data-provider', provider);
+      li.textContent = getLocaleText(model.localeKey) || model.modelName;
+      // Show provider: model in dropdown selected display
+      if ((summarizerModelInfo.provider === provider && summarizerModelInfo.modelName === model.modelName) || (model.default && !foundSelected)) {
+        li.classList.add('selected');
+        selected.textContent = `${provider}: ${li.textContent}`;
+        summarizerModelInfo = { provider, modelName: model.modelName };
+        summarizerModel = model.modelName;
+        setSummarizerModelInfo(provider, model.modelName);
+        foundSelected = true;
+      }
+      optionsList.appendChild(li);
+    });
+  });
+
+  // Dropdown logic
+  dropdownContainer.addEventListener('mousedown', (e) => {
+    if (!e.target.classList.contains('custom-dropdown-option')) {
+      dropdownContainer.classList.toggle('open');
+    }
+  });
+  optionsList.addEventListener('mousedown', (e) => {
+    const option = e.target.closest('.custom-dropdown-option');
+    if (option && optionsList.contains(option)) {
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      const provider = option.getAttribute('data-provider');
+      const modelName = option.getAttribute('data-value');
+      selected.textContent = `${provider}: ${option.textContent}`;
+      summarizerModelInfo = { provider, modelName };
+      summarizerModel = modelName;
+      setSummarizerModelInfo(provider, modelName);
+      dropdownContainer.classList.remove('open');
+    }
+  });
+  document.addEventListener('mousedown', (e) => {
+    if (dropdownContainer.classList.contains('open') && !dropdownContainer.contains(e.target)) {
+      dropdownContainer.classList.remove('open');
+    }
+  });
+
+  // Insert dropdown and label/info text in a flex row above the textarea
+  const summaryBox = document.getElementById('summaryBox');
+  if (summaryBox) {
+    let dropdownRow = document.getElementById('summarizerDropdownRow');
+    if (!dropdownRow) {
+      dropdownRow = document.createElement('div');
+      dropdownRow.className = 'dropdown-row';
+      dropdownRow.id = 'summarizerDropdownRow';
+      summaryBox.parentElement.insertBefore(dropdownRow, summaryBox);
+    }
+    let label = document.getElementById('summaryModelDropdownLabel');
+    if (!label) {
+      label = document.createElement('span');
+      label.id = 'summaryModelDropdownLabel';
+      label.className = 'dropdown-label';
+      label.textContent = getLocaleText('summarize_model');
+      dropdownRow.appendChild(label);
+    }
+    dropdownRow.appendChild(dropdownContainer);
+  }
+
+  // When disabling/enabling dropdown, also set disabled attribute on all options for accessibility
+  async function setDropdownDisabled(disabled) {
+    const label = document.getElementById('summaryModelDropdownLabel');
+    if (disabled) {
+      dropdownContainer.classList.add('disabled');
+      dropdownContainer.setAttribute('aria-disabled', 'true');
+      if (label) label.classList.add('disabled');
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.setAttribute('aria-disabled', 'true'));
+    } else {
+      dropdownContainer.classList.remove('disabled');
+      dropdownContainer.removeAttribute('aria-disabled');
+      if (label) label.classList.remove('disabled');
+      optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.removeAttribute('aria-disabled'));
+    }
+  }
+  dropdownContainer.setDropdownDisabled = setDropdownDisabled;
+}
 
 export function setupSummarizer() {
   const summarizeButton = document.getElementById('summarizeButton');
@@ -20,19 +156,27 @@ export function setupSummarizer() {
   }
 
   function updateInfoTextI18n() {
+    summaryBox.placeholder = getLocaleText('summary_placeholder') || 'Summary will appear here...';
+
+    // Robust: clear progress message from any locale
+    getAllProgressMessages().then(progressMessages => {
+      if (!isSummarizing && progressMessages.some(msg => msg && summaryBox.value && summaryBox.value.trim().toLowerCase() === msg.trim().toLowerCase())) {
+        summaryBox.value = '';
+      }
+    });
+
     if (lastInfo.type === 'waiting') {
       summaryBox.value = getLocaleText('summarizing_wait') || 'Summarizing...';
     } else if (lastInfo.type === 'success' && lastInfo.dateStr) {
       let label = getLocaleText('summarize_success') || '';
-      if (label && !/[\s:：]$/.test(label)) label += ' ';
+      label = label ? label + ' ' : '';
       setInfoText(`${label}${lastInfo.dateStr}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
       summaryBox.value = '';
       let label = getLocaleText('summarize_fail') || '';
-      if (label && !/[\s:：!]$/.test(label)) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
       setInfoText(`${label} ${errorText}`, true);
-    }    
+    }
     if (lastInfo.type === 'success' || lastInfo.type === 'fail')
       return;
 
@@ -58,6 +202,12 @@ export function setupSummarizer() {
     summaryTimer.textContent = '';
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = null;
+  }
+
+  function setDropdownStateDuringSummarize(disabled) {
+    // Always get the dropdown fresh in case it was re-injected
+    const dropdown = document.getElementById('customSummarizerDropdown');
+    if (dropdown && dropdown.setDropdownDisabled) dropdown.setDropdownDisabled(disabled);
   }
 
   summarizeButton.addEventListener('click', async () => {
@@ -96,6 +246,7 @@ export function setupSummarizer() {
     summarizeButton.textContent = getLocaleText('stop') || 'Stop';
     summarizeButton.classList.add('danger');
     summarizeButton.disabled = false;
+    setDropdownStateDuringSummarize(true);
 
     lastInfo = { type: 'waiting', dateStr: '', errorKey: '', errorMsg: '' };
     summaryBox.value = getLocaleText('summarizing_wait') || 'Summarizing...';
@@ -107,10 +258,25 @@ export function setupSummarizer() {
     startSummaryTimer();
 
     try {
-      systemPrompt += examples;
-      // Debug: log the prompt sent to GPT-4.1
-      // console.log('[DEBUG] GPT-4.1 prompt:/n', systemPrompt);
-
+      let model = summarizerModel;
+      let selectedProvider = null;
+      let selectedModelName = model;
+      let providerModels = {};
+      try {
+        const res = await fetch('llm_apis/summarizers.json');
+        const data = await res.json();
+        providerModels = data.summarizers;
+      } catch (e) {}
+      outer: for (const [provider, models] of Object.entries(providerModels)) {
+        for (const m of models) {
+          if (m.modelName === model) {
+            selectedProvider = provider;
+            selectedModelName = m.modelName;
+            break outer;
+          }
+        }
+      }
+      // Only OpenAI supported for now, but this is future-proof
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -118,11 +284,11 @@ export function setupSummarizer() {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-4.1",
+          model: selectedModelName,
           temperature: 0,
           messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: content }
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: content }
           ]
         }),
         signal: abortController.signal
@@ -166,6 +332,7 @@ export function setupSummarizer() {
       }
       if (window.setupUniversalExpandButtons) window.setupUniversalExpandButtons();
     } finally {
+      // Set flag to false before any i18n update can run
       isSummarizing = false;
       abortController = null;
       // Timer already stopped on cancel, but also stop here for normal completion
@@ -178,26 +345,23 @@ export function setupSummarizer() {
       summarizeButton.textContent = getLocaleText('summary_button') || 'Summarize';
       summarizeButton.classList.remove('danger');
       summarizeButton.disabled = false;
+      setDropdownStateDuringSummarize(false);
+      // If cancelled, clear textarea and restore placeholder
+      if (summaryBox.value === getLocaleText('cancelling') || summaryBox.value.toLowerCase().includes('cancelling')) {
+        summaryBox.value = '';
+        summaryBox.placeholder = getLocaleText('summary_placeholder') || 'Summary will appear here...';
+      }
     }
   });
 
-  // Add locale-compatible model/version label above summary textarea
+  // Restore placeholder from i18n
   if (summaryBox) {
-    let modelLabel = document.getElementById('summaryModelLabel');
-    if (!modelLabel) {
-      modelLabel = document.createElement('div');
-      modelLabel.id = 'summaryModelLabel';
-      modelLabel.className = 'textarea-model-label';
-      // Insert as first child of wrapper (before copy/expand buttons)
-      const wrapper = summaryBox.closest('.copy-textarea-wrapper, .textarea-expand-wrapper');
-      if (wrapper) wrapper.insertBefore(modelLabel, wrapper.firstChild);
-      else summaryBox.parentElement.insertBefore(modelLabel, summaryBox);
-    }
-    function updateModelLabel() {
-      const modelName = getLocaleText('settings_summarize_model_openai') || 'OpenAI GPT-4.1';
-      modelLabel.textContent = `${getLocaleText('model_label') || 'Model:'} ${modelName}`;
-    }
-    updateModelLabel();
-    onTranslationsUpdated(updateModelLabel);
+    summaryBox.placeholder = getLocaleText('summary_placeholder') || 'Summary will appear here...';
   }
+  // Move info text to be after the button in the row-group (do this only once, not at the end)
+  if (summarizeButton && summarizeInfoText && summarizeButton.nextSibling !== summarizeInfoText) {
+    summarizeButton.parentNode.insertBefore(summarizeInfoText, summarizeButton.nextSibling);
+  }
+
+  setupSummarizerModelDropdown();
 }

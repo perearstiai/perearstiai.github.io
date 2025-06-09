@@ -2,6 +2,12 @@
 
 This document lists all third-party resources used in this project that require attribution, including icons and other assets. Please refer to the sections below for details on each resource and their respective licenses.
 
+## Speech Recognition
+
+- **[TalTech NLP](https://taltech.ee/en/laboratory-language-technology)**
+
+---
+
 ## Icon Attributions
 
 This project uses the following icons, all under the [CC Attribution License](https://creativecommons.org/licenses/by/4.0/):
