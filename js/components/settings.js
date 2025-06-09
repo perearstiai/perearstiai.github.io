@@ -6,7 +6,6 @@ const SETTINGS_KEYS = {
   transcribeModel: 'transcribe_model'
 };
 
-export const DEFAULT_TRANSCRIBE_MODEL = 'taltech'; // Default transcription model
 const DEFAULT_SYSTEM_PROMPT = `You are a medical transcriber specializing in structured clinical notes. 
  
 I will provide an AI-generated transcription of a doctor-patient encounter. Since AI may misinterpret medical terms, medications, and dosages, your task is to: 
@@ -35,7 +34,7 @@ export function getSettings() {
     wrappedExamples: wrappedExamples,
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
     lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est',
-    transcribeModel: localStorage.getItem(SETTINGS_KEYS.transcribeModel) || DEFAULT_TRANSCRIBE_MODEL
+    transcribeModel: localStorage.getItem(SETTINGS_KEYS.transcribeModel)
   };
 }
 export function saveSettings({ apiKey, examples, systemPrompt, lang, transcribeModel }) {

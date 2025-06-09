@@ -1,4 +1,4 @@
-import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getTranscribeModel, setTranscribeModel, getAllProgressMessages } from '../components/settings.js';
+import { getOpenAIKey, getLocaleText, onTranslationsUpdated, getTranscribeModel, setTranscribeModel, getAllProgressMessages } from '../components/settings.js';
 
 let transcriberModel = getTranscribeModel();
 
@@ -45,9 +45,9 @@ async function setupTranscriberModelDropdown() {
       li.className = 'custom-dropdown-option';
       li.setAttribute('data-value', model.modelName);
       li.setAttribute('data-provider', provider);
-      li.setAttribute('data-i18n', model.localeKey || model.modelName);
-      li.textContent = getLocaleText(model.localeKey) || model.modelName;
-      if ((model.default && !foundSelected) || model.modelName === transcriberModel) {
+      li.setAttribute('data-i18n', model.localeKey);
+      li.textContent = getLocaleText(model.localeKey);
+      if ((model.default && !foundSelected)) {
         li.classList.add('selected');
         selected.textContent = li.textContent;
         transcriberModel = model.modelName;
@@ -156,12 +156,10 @@ export function setupTranscriber() {
       transcriptionBox.value = getLocaleText('transcribing_wait') || 'Transcribing...';
     } else if (lastInfo.type === 'success' && lastInfo.fileName) {
       let label = getLocaleText('transcribe_success') || '';
-      if (label && !(/[\uff1a]$/.test(label))) label += ':';
       setInfoText(`${label} ${lastInfo.fileName}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
       transcriptionBox.value = '';
       let label = getLocaleText('transcribe_fail') || '';
-      if (label && !(/[\uff1a!]$/.test(label))) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
       setInfoText(`${label} ${errorText}`, true);
     }
