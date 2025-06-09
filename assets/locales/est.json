@@ -47,7 +47,7 @@
     "about_title": "Teave",
     "about_description": "Perearsti Abiline on tööriist, mis aitab perearstidel teha kokkuvõtteid arsti ja patsiendi vahelistest vestlustest. Programm kasutab vestluse transkribeerimiseks kõnetuvastust ja kokkuvõtte tegemiseks loomuliku keele töötlust.",
     "privacy_title": "Privaatsuspoliitika",
-    "privacy_description": "Perearsti Assistent töötab ainult sinu brauseris ja suhtleb ainult TalTechi ja OpenAI serveritega. Sinu OpenAI API võti salvestatakse ainult kohalikus brauseri mälus ja ei ole teistele nähtav. Pidage meeles, et salvestatud heli ja transkriptsioon saadetakse töötlemiseks kolmandatele osapooltele. Privaatsuse huvides peaks seda süsteemi kasutama ainult demotarkvarana.",
+    "privacy_description": "Perearsti Assistent töötab ainult sinu brauseris ja suhtleb ainult TalTechi ja OpenAI serveritega. Sinu OpenAI API võti salvestatakse ainult kohalikus brauseri mälus ja ei ole teistele nähtav.\n\n Pidage meeles, et salvestatud heli ja transkriptsioon saadetakse töötlemiseks kolmandatele osapooltele. Privaatsuse huvides peaks seda süsteemi kasutama ainult demotarkvarana.",
     "attributions_title": "Viited",
     "attributions_icons_title": "Ikoonid",
     "copy": "Kopeeri",

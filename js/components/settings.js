@@ -2,8 +2,7 @@ const SETTINGS_KEYS = {
   apiKey: 'openai_api_key',
   examples: 'openai_examples',
   systemPrompt: 'openai_system_prompt',
-  lang: 'lang',
-  transcribeModel: 'transcribe_model'
+  lang: 'lang'
 };
 
 const DEFAULT_SYSTEM_PROMPT = `You are a medical transcriber specializing in structured clinical notes. 
@@ -33,17 +32,15 @@ export function getSettings() {
     examples: examples,
     wrappedExamples: wrappedExamples,
     systemPrompt: localStorage.getItem(SETTINGS_KEYS.systemPrompt) || DEFAULT_SYSTEM_PROMPT,
-    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est',
-    transcribeModel: localStorage.getItem(SETTINGS_KEYS.transcribeModel)
+    lang: localStorage.getItem(SETTINGS_KEYS.lang) || 'est'
   };
 }
-export function saveSettings({ apiKey, examples, systemPrompt, lang, transcribeModel }) {
+export function saveSettings({ apiKey, examples, systemPrompt, lang }) {
   localStorage.setItem(SETTINGS_KEYS.apiKey, apiKey);
   const wrappedExamples = `[Examples begin]\n${examples ? examples.trim() : ''}\n[Examples end]`;
   localStorage.setItem(SETTINGS_KEYS.examples, wrappedExamples);
   localStorage.setItem(SETTINGS_KEYS.systemPrompt, systemPrompt);
   if (lang) localStorage.setItem(SETTINGS_KEYS.lang, lang);
-  if (transcribeModel) localStorage.setItem(SETTINGS_KEYS.transcribeModel, transcribeModel);
 }
 export function getOpenAIKey() {
   return getSettings().apiKey;
@@ -60,12 +57,9 @@ export function getSystemPrompt() {
 export function getLang() {
   return getSettings().lang;
 }
-export function getTranscribeModel() {
-  return getSettings().transcribeModel;
-}
-export function setTranscribeModel(model) {
-  localStorage.setItem(SETTINGS_KEYS.transcribeModel, model);
-}
+
+// Removed setTranscribeModel and getTranscribeModel
+
 export async function requireLang() {
   let lang = localStorage.getItem(SETTINGS_KEYS.lang);
   if (!lang) {
@@ -83,7 +77,13 @@ export async function loadAndApplyTranslations(lang) {
   // Text content
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[key]) el.textContent = translations[key];
+    let translatedText = translations[key] || key;
+    // Handle line breaks in translations (\n)
+    if (translatedText.includes('\n')) {
+      el.innerHTML = translatedText.replace(/\n/g, '<br>');
+    } else {
+      el.textContent = translatedText;
+    }
   });
   // Placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {

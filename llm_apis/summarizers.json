@@ -1,7 +1,7 @@
 {
     "summarizers": {
         "OpenAI": [
-{
+            {
                 "modelName": "gpt-4o",
                 "localeKey": "summarize_model_openai_gpt4_o",
                 "default": true

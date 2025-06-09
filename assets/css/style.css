@@ -147,7 +147,7 @@ main {
 
 .row-group > button, .row-group > .info-text {
   vertical-align: middle;
-  line-height: 2.4em;
+  line-height: 1.5em;
   align-self: center;
 }
 
@@ -562,8 +562,9 @@ dialog#settingsModal {
   justify-content: space-between;
   min-height: 38px;
 }
-#customModelDropdown {
-  width: 350px;
+#customTranscriberDropdown,
+#customSummarizerDropdown {
+  width: 280px;
 }
 
 .custom-dropdown:focus,
@@ -835,8 +836,8 @@ dialog#attributionsModal a:hover{
    ========================= */
 .copy-btn {
   position: absolute;
-  top: 2em;
-  right: 0.7em;
+  top: 140px;
+  right: 1em;
   background: #e3f2fd;
   border: 1.5px solid #1976d2;
   color: #1976d2;
@@ -1173,18 +1174,12 @@ dialog#attributionsModal a:hover{
   }
 }
 
-/* Timer and info text placement fix for transcribe/summarize */
-#transcriptionBox, #summaryBox {
-  position: relative;
-}
-
 .textarea-timer, #transcriptionTimer, #summaryTimer {
   position: absolute;
-  left: 18px;
-  bottom: 18px;
+  left: 8px;
+  bottom: 40px;
   font-size: 1em;
   color: #1976d2;
-  background: rgba(255,255,255,0.7);
   padding: 2px 8px;
   border-radius: 6px;
   z-index: 2;
@@ -1195,8 +1190,7 @@ dialog#attributionsModal a:hover{
 #transcriptionSpinner, #summarySpinner {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: 55%;
   z-index: 3;
 }
 
@@ -1332,10 +1326,11 @@ dialog#attributionsModal a:hover{
   display: none;
 }
 
+/*
 .textarea-timer {
   position: absolute;
-  left: 0.8em;
-  bottom: 0.5em;
+  left: 8.8em;
+  bottom: 2.6em;
   font-size: 0.95em;
   color: #888;
   opacity: 0.85;
@@ -1343,6 +1338,7 @@ dialog#attributionsModal a:hover{
   z-index: 3;
   font-family: monospace;
 }
+  */
 
 .textarea-model-label {
   display: block;
@@ -1360,8 +1356,8 @@ dialog#attributionsModal a:hover{
 
 .custom-dropdown-group {
   font-weight: bold;
-  color: #1976d2;
-  background: #e3f2fd;
+  color: #ffffff;
+  background: #1a5077;
   padding: 8px 18px 4px 18px;
   cursor: default;
   font-size: 1em;
@@ -1384,6 +1380,7 @@ dialog#attributionsModal a:hover{
   margin-bottom: 0.5em;
 }
 .dropdown-label {
+  margin-bottom: 0.5em;
   font-size: 1em;
   color: #1976d2;
   font-weight: 600;

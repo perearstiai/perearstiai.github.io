@@ -1,6 +1,19 @@
-import { getOpenAIKey, getLocaleText, onTranslationsUpdated, getTranscribeModel, setTranscribeModel, getAllProgressMessages } from '../components/settings.js';
+import { getOpenAIKey, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
 
-let transcriberModel = getTranscribeModel();
+
+// Utility to get/set transcriber model+provider in localStorage
+function getTranscriberModelInfo() {
+  try {
+    const raw = localStorage.getItem('transcriber_model_info');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+function setTranscriberModelInfo(provider, modelName) {
+  localStorage.setItem('transcriber_model_info', JSON.stringify({ provider, modelName }));
+}
+
+let transcriberModelInfo = getTranscriberModelInfo() || { provider: null, modelName: null };
 
 async function setupTranscriberModelDropdown() {
   const dropdownContainer = document.createElement('div');
@@ -47,11 +60,12 @@ async function setupTranscriberModelDropdown() {
       li.setAttribute('data-provider', provider);
       li.setAttribute('data-i18n', model.localeKey);
       li.textContent = getLocaleText(model.localeKey);
-      if ((model.default && !foundSelected)) {
+      // Show provider: model in dropdown selected display
+      if ((transcriberModelInfo.provider === provider && transcriberModelInfo.modelName === model.modelName) || (model.default && !foundSelected)) {
         li.classList.add('selected');
-        selected.textContent = li.textContent;
-        transcriberModel = model.modelName;
-        setTranscribeModel(transcriberModel);
+        selected.textContent = `${provider}: ${li.textContent}`;
+        transcriberModelInfo = { provider, modelName: model.modelName };
+        setTranscriberModelInfo(provider, model.modelName);
         foundSelected = true;
       }
       optionsList.appendChild(li);
@@ -69,9 +83,11 @@ async function setupTranscriberModelDropdown() {
     if (option && optionsList.contains(option)) {
       optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
       option.classList.add('selected');
-      selected.textContent = option.textContent;
-      transcriberModel = option.getAttribute('data-value');
-      setTranscribeModel(transcriberModel);
+      const provider = option.getAttribute('data-provider');
+      const modelName = option.getAttribute('data-value');
+      selected.textContent = `${provider}: ${option.textContent}`;
+      transcriberModelInfo = { provider, modelName };
+      setTranscriberModelInfo(provider, modelName);
       dropdownContainer.classList.remove('open');
     }
   });
@@ -265,32 +281,33 @@ export function setupTranscriber() {
     startTranscriptionTimer();
     setDropdownStateDuringTranscribe(true);
     try {
-      const model = getTranscribeModel();
+      // Use transcriberModelInfo instead of getTranscriberModel
+      const { provider: selectedProvider, modelName: selectedModelName } = transcriberModelInfo;
       let formattedText = '';
-      // Find the selected model's provider and modelName
-      let selectedProvider = null;
-      let selectedModelName = model;
       let providerModels = {};
       try {
         const res = await fetch('llm_apis/transcribers.json');
         const data = await res.json();
         providerModels = data.transcribers;
       } catch (e) {}
-      outer: for (const [provider, models] of Object.entries(providerModels)) {
-        for (const m of models) {
-          if (m.modelName === model) {
-            selectedProvider = provider;
-            selectedModelName = m.modelName;
+      // If not set, fallback to first available model
+      let provider = selectedProvider;
+      let modelName = selectedModelName;
+      if (!provider || !modelName) {
+        outer: for (const [prov, models] of Object.entries(providerModels)) {
+          for (const m of models) {
+            provider = prov;
+            modelName = m.modelName;
             break outer;
           }
         }
       }
-      if (selectedProvider === 'OpenAI') {
+      if (provider === 'OpenAI') {
         // --- OpenAI Whisper ---
         const apiKey = getOpenAIKey().trim();
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('model', selectedModelName);
+        formData.append('model', modelName);
         const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${apiKey}` },

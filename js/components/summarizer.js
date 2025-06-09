@@ -1,7 +1,19 @@
-import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getTranscribeModel, setTranscribeModel, getAllProgressMessages } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
 
 let summarizerModel = 'gpt-4o'; // Default summarizer model
 let summarizerModels = [];
+let summarizerModelInfo = getSummarizerModelInfo() || { provider: null, modelName: null };
+
+function getSummarizerModelInfo() {
+  try {
+    const raw = localStorage.getItem('summarizer_model_info');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+function setSummarizerModelInfo(provider, modelName) {
+  localStorage.setItem('summarizer_model_info', JSON.stringify({ provider, modelName }));
+}
 
 async function setupSummarizerModelDropdown() {
   const dropdownContainer = document.createElement('div');
@@ -47,10 +59,13 @@ async function setupSummarizerModelDropdown() {
       li.setAttribute('data-value', model.modelName);
       li.setAttribute('data-provider', provider);
       li.textContent = getLocaleText(model.localeKey) || model.modelName;
-      if ((model.default && !foundSelected) || model.modelName === summarizerModel) {
+      // Show provider: model in dropdown selected display
+      if ((summarizerModelInfo.provider === provider && summarizerModelInfo.modelName === model.modelName) || (model.default && !foundSelected)) {
         li.classList.add('selected');
-        selected.textContent = li.textContent;
+        selected.textContent = `${provider}: ${li.textContent}`;
+        summarizerModelInfo = { provider, modelName: model.modelName };
         summarizerModel = model.modelName;
+        setSummarizerModelInfo(provider, model.modelName);
         foundSelected = true;
       }
       optionsList.appendChild(li);
@@ -68,8 +83,12 @@ async function setupSummarizerModelDropdown() {
     if (option && optionsList.contains(option)) {
       optionsList.querySelectorAll('.custom-dropdown-option').forEach(opt => opt.classList.remove('selected'));
       option.classList.add('selected');
-      selected.textContent = option.textContent;
-      summarizerModel = option.getAttribute('data-value');
+      const provider = option.getAttribute('data-provider');
+      const modelName = option.getAttribute('data-value');
+      selected.textContent = `${provider}: ${option.textContent}`;
+      summarizerModelInfo = { provider, modelName };
+      summarizerModel = modelName;
+      setSummarizerModelInfo(provider, modelName);
       dropdownContainer.classList.remove('open');
     }
   });
@@ -151,12 +170,11 @@ export function setupSummarizer() {
       summaryBox.value = getLocaleText('summarizing_wait') || 'Summarizing...';
     } else if (lastInfo.type === 'success' && lastInfo.dateStr) {
       let label = getLocaleText('summarize_success') || '';
-      if (label && !(/[\uff1a]$/.test(label))) label += ' ';
+      label = label ? label + ' ' : '';
       setInfoText(`${label}${lastInfo.dateStr}`, false);
     } else if (lastInfo.type === 'fail' && lastInfo.errorKey) {
       summaryBox.value = '';
       let label = getLocaleText('summarize_fail') || '';
-      if (label && !(/[\uff1a!]$/.test(label))) label += ':';
       let errorText = getLocaleText(lastInfo.errorKey) || '';
       setInfoText(`${label} ${errorText}`, true);
     }
