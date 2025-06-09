@@ -1,7 +1,6 @@
 import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
 
 let summarizerModel = 'gpt-4o'; // Default summarizer model
-let summarizerModels = [];
 let summarizerModelInfo = getSummarizerModelInfo() || { provider: null, modelName: null };
 
 function getSummarizerModelInfo() {
@@ -205,7 +204,6 @@ export function setupSummarizer() {
     timerInterval = null;
   }
 
-  let dropdown = document.getElementById('customSummarizerDropdown');
   function setDropdownStateDuringSummarize(disabled) {
     // Always get the dropdown fresh in case it was re-injected
     const dropdown = document.getElementById('customSummarizerDropdown');

@@ -1326,20 +1326,6 @@ dialog#attributionsModal a:hover{
   display: none;
 }
 
-/*
-.textarea-timer {
-  position: absolute;
-  left: 8.8em;
-  bottom: 2.6em;
-  font-size: 0.95em;
-  color: #888;
-  opacity: 0.85;
-  pointer-events: none;
-  z-index: 3;
-  font-family: monospace;
-}
-  */
-
 .textarea-model-label {
   display: block;
   font-size: 0.85em;
