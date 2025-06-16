@@ -1,4 +1,4 @@
-import { getOpenAIKey, getSystemPrompt, getWrappedExamples, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
+import { getOpenAIKey, getSystemPrompt, getLocaleText, onTranslationsUpdated, getAllProgressMessages } from '../components/settings.js';
 
 let summarizerModel = 'gpt-4o'; // Default summarizer model
 let summarizerModelInfo = getSummarizerModelInfo() || { provider: null, modelName: null };
@@ -48,20 +48,21 @@ async function setupSummarizerModelDropdown() {
   optionsList.innerHTML = '';
   let foundSelected = false;
   Object.entries(providerModels).forEach(([provider, models]) => {
-    const groupLi = document.createElement('li');
-    groupLi.textContent = provider;
-    groupLi.className = 'custom-dropdown-group';
-    optionsList.appendChild(groupLi);
+    //const groupLi = document.createElement('li');
+    //groupLi.textContent = provider;
+    //groupLi.className = 'custom-dropdown-group';
+    //optionsList.appendChild(groupLi);
     models.forEach(model => {
       const li = document.createElement('li');
       li.className = 'custom-dropdown-option';
       li.setAttribute('data-value', model.modelName);
       li.setAttribute('data-provider', provider);
-      li.textContent = getLocaleText(model.localeKey) || model.modelName;
+      //li.textContent = getLocaleText(model.localeKey);
+      li.textContent = provider + ': ' + getLocaleText(model.localeKey);
       // Show provider: model in dropdown selected display
       if ((summarizerModelInfo.provider === provider && summarizerModelInfo.modelName === model.modelName) || (model.default && !foundSelected)) {
         li.classList.add('selected');
-        selected.textContent = `${provider}: ${li.textContent}`;
+        selected.textContent = `${provider}: ${getLocaleText(model.localeKey)}`;
         summarizerModelInfo = { provider, modelName: model.modelName };
         summarizerModel = model.modelName;
         setSummarizerModelInfo(provider, model.modelName);
@@ -84,7 +85,8 @@ async function setupSummarizerModelDropdown() {
       option.classList.add('selected');
       const provider = option.getAttribute('data-provider');
       const modelName = option.getAttribute('data-value');
-      selected.textContent = `${provider}: ${option.textContent}`;
+      //selected.textContent = `${provider}: ${option.textContent}`;
+      selected.textContent = option.textContent;
       summarizerModelInfo = { provider, modelName };
       summarizerModel = modelName;
       setSummarizerModelInfo(provider, modelName);
@@ -226,7 +228,6 @@ export function setupSummarizer() {
 
     const apiKey = getOpenAIKey().trim();
     const content = transcriptionBox.value.trim();
-    const examples = getWrappedExamples().trim();
     let systemPrompt = getSystemPrompt().trim();
 
     summarizeInfoText.textContent = '';

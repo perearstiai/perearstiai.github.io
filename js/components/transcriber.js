@@ -55,21 +55,22 @@ async function setupTranscriberModelDropdown() {
   optionsList.innerHTML = '';
   let foundSelected = false;
   Object.entries(providerModels).forEach(([provider, models]) => {
-    const groupLi = document.createElement('li');
-    groupLi.textContent = provider;
-    groupLi.className = 'custom-dropdown-group';
-    optionsList.appendChild(groupLi);
+    //const groupLi = document.createElement('li');
+    //groupLi.textContent = provider;
+    //groupLi.className = 'custom-dropdown-group';
+    //optionsList.appendChild(groupLi);
     models.forEach(model => {
       const li = document.createElement('li');
       li.className = 'custom-dropdown-option';
       li.setAttribute('data-value', model.modelName);
       li.setAttribute('data-provider', provider);
       li.setAttribute('data-i18n', model.localeKey);
-      li.textContent = getLocaleText(model.localeKey);
+      //li.textContent = getLocaleText(model.localeKey);
+      li.textContent = provider + ": " + getLocaleText(model.localeKey);
       // Show provider: model in dropdown selected display
       if ((transcriberModelInfo.provider === provider && transcriberModelInfo.modelName === model.modelName) || (model.default && !foundSelected)) {
         li.classList.add('selected');
-        selected.textContent = `${provider}: ${li.textContent}`;
+        selected.textContent = `${provider}: ${getLocaleText(model.localeKey)}`;
         transcriberModelInfo = { provider, modelName: model.modelName };
         setTranscriberModelInfo(provider, model.modelName);
         foundSelected = true;
@@ -91,7 +92,8 @@ async function setupTranscriberModelDropdown() {
       option.classList.add('selected');
       const provider = option.getAttribute('data-provider');
       const modelName = option.getAttribute('data-value');
-      selected.textContent = `${provider}: ${option.textContent}`;
+      //selected.textContent = `${provider}: ${option.textContent}`;
+      selected.textContent = option.textContent;
       transcriberModelInfo = { provider, modelName };
       setTranscriberModelInfo(provider, modelName);
       dropdownContainer.classList.remove('open');
